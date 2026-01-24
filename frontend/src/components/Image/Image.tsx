@@ -1,8 +1,6 @@
-import React from 'react';
-
 import './Image.scss';
 
-const image = props => (
+export const Image = props => (
   <div
     className="image"
     style={{
@@ -12,5 +10,3 @@ const image = props => (
     }}
   />
 );
-
-export default image;
