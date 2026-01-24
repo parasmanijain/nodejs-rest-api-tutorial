@@ -1,7 +1,6 @@
-import React, { Fragment } from 'react';
-
-import Backdrop from '../Backdrop/Backdrop';
-import Modal from '../Modal/Modal';
+import { Fragment } from 'react';
+import Backdrop from '../Backdrop/Backdrop.tsx';
+import Modal from '../Modal/Modal.tsx';
 
 const errorHandler = props => (
   <Fragment>
