@@ -1,6 +1,6 @@
 import React from 'react';
 
-import './MobileToggle.css';
+import './MobileToggle.scss';
 
 const mobileToggle = props => (
   <button className="mobile-toggle" onClick={props.onOpen}>

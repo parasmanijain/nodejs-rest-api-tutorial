@@ -1,7 +1,7 @@
 import React from 'react';
 
 import NavigationItems from '../NavigationItems/NavigationItems';
-import './MobileNavigation.css';
+import './MobileNavigation.scss';
 
 const mobileNavigation = props => (
   <nav className={['mobile-nav', props.open ? 'open' : ''].join(' ')}>

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import './Logo.css';
+import './Logo.scss';
 
 const logo = props => <h1 className="logo">MessageNode</h1>;
 

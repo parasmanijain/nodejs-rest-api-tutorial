@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 
-import './Button.css';
+import './Button.scss';
 
 const button = props =>
   !props.link ? (

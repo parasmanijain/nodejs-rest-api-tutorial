@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 import Image from '../../../components/Image/Image';
-import './SinglePost.css';
+import './SinglePost.scss';
 
 class SinglePost extends Component {
   state = {

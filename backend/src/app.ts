@@ -1,12 +1,11 @@
-import express, { json } from "express";
-import feedRoutes from "./routes/feed.js";
+import express, { json, NextFunction, Request, Response } from "express";
+import feedRoutes from "./routes/feed";
 
 const app = express();
 
-// app.use(bodyParser.urlencoded()); // x-www-form-urlencoded <form>
-app.use(json()); // application/json
+app.use(json());
 
-app.use((req, res, next) => {
+app.use((_req: Request, res: Response, next: NextFunction) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
     "Access-Control-Allow-Methods",
@@ -18,4 +17,6 @@ app.use((req, res, next) => {
 
 app.use("/feed", feedRoutes);
 
-app.listen(8080);
+app.listen(8080, () => {
+  console.log(`Server running on port 8080`);
+});

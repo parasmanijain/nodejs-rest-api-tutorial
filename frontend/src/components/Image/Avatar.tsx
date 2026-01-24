@@ -1,7 +1,7 @@
 import React from 'react';
 
 import Image from './Image';
-import './Avatar.css';
+import './Avatar.scss';
 
 const avatar = props => (
   <div
