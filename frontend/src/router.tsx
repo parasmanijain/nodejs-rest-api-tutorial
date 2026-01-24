@@ -2,11 +2,11 @@ import {
     createBrowserRouter,
     Navigate
 } from 'react-router-dom';
-import App from './App';
-import FeedPage from './pages/Feed/Feed';
-import SinglePostPage from './pages/Feed/SinglePost/SinglePost';
-import LoginPage from './pages/Auth/Login';
-import SignupPage from './pages/Auth/Signup';
+import { App } from './App';
+import { Feed } from './pages/Feed/Feed';
+import { SinglePost } from './pages/Feed/SinglePost/SinglePost';
+import { Login } from './pages/Auth/Login';
+import { Signup } from './pages/Auth/Signup';
 
 const isAuthenticated = (): boolean => {
     const token = localStorage.getItem('token');
@@ -22,21 +22,21 @@ export const router = createBrowserRouter([
             ? [
                 {
                     index: true,
-                    element: <FeedPage />
+                    element: <Feed />
                 },
                 {
                     path: ':postId',
-                    element: <SinglePostPage />
+                    element: <SinglePost />
                 }
             ]
             : [
                 {
                     index: true,
-                    element: <LoginPage />
+                    element: <Login />
                 },
                 {
                     path: 'signup',
-                    element: <SignupPage />
+                    element: <Signup />
                 },
                 {
                     path: '*',

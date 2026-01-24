@@ -4,7 +4,7 @@ import { Button } from '../../components/Button/Button.tsx';
 import { required, length, email } from '../../util/validators.ts';
 import { Auth } from './Auth';
 
-class Signup extends Component {
+export class Signup extends Component {
   state = {
     signupForm: {
       email: {
@@ -113,5 +113,3 @@ class Signup extends Component {
     );
   }
 }
-
-export default Signup;
