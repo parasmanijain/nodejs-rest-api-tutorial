@@ -1,11 +1,33 @@
-import { useState } from 'react';
+import { FormEvent, useState } from 'react';
 import { Input } from '../../components/Form/Input/Input';
 import { Button } from '../../components/Button/Button';
 import { required, length, email } from '../../util/validators';
 import { Auth } from './Auth';
 
-export const Login = (props) => {
-  const [loginForm, setLoginForm] = useState({
+interface FormField {
+  value: string;
+  valid: boolean;
+  touched: boolean;
+  validators: Array<(value: string) => boolean>;
+}
+
+interface LoginFormData {
+  email: FormField;
+  password: FormField;
+}
+
+interface LoginData {
+  email: string;
+  password: string;
+}
+
+interface LoginProps {
+  loading: boolean;
+  onLogin: (event: FormEvent<HTMLFormElement>, authData: LoginData) => void;
+}
+
+export const Login = (props: LoginProps) => {
+  const [loginForm, setLoginForm] = useState<LoginFormData>({
     email: {
       value: '',
       valid: false,
@@ -19,9 +41,9 @@ export const Login = (props) => {
       validators: [required, length({ min: 5 })],
     },
   });
-  const [formIsValid, setFormIsValid] = useState(false);
+  const [formIsValid, setFormIsValid] = useState<boolean>(false);
 
-  const inputChangeHandler = (input, value) => {
+  const inputChangeHandler = (input: keyof LoginFormData, value: string) => {
     setLoginForm((prevState) => {
       let isValid = true;
       for (const validator of prevState[input].validators) {
@@ -37,14 +59,14 @@ export const Login = (props) => {
       };
       let overallValid = true;
       for (const inputName in updatedForm) {
-        overallValid = overallValid && updatedForm[inputName].valid;
+        overallValid = overallValid && updatedForm[inputName as keyof LoginFormData].valid;
       }
       setFormIsValid(overallValid);
       return updatedForm;
     });
   };
 
-  const inputBlurHandler = (input) => {
+  const inputBlurHandler = (input: keyof LoginFormData) => {
     setLoginForm((prevState) => ({
       ...prevState,
       [input]: {

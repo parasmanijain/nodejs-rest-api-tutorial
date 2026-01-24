@@ -1,3 +1,8 @@
+import { ReactNode } from 'react';
 import './Auth.scss';
 
-export const Auth = props => <section className="auth-form">{props.children}</section>;
+interface AuthProps {
+    children: ReactNode;
+}
+
+export const Auth = (props: AuthProps) => <section className="auth-form">{props.children}</section>;

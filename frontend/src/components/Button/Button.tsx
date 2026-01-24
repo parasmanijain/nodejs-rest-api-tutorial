@@ -1,7 +1,19 @@
+import { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import './Button.scss';
 
-export const Button = props =>
+interface ButtonProps {
+  children: ReactNode;
+  design?: 'flat' | 'raised' | 'accent' | 'danger' | 'success';
+  mode?: 'flat' | 'raised';
+  onClick?: () => void;
+  disabled?: boolean;
+  loading?: boolean;
+  type?: 'button' | 'submit' | 'reset';
+  link?: string;
+}
+
+export const Button = (props: ButtonProps) =>
   !props.link ? (
     <button
       className={[

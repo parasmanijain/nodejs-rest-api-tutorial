@@ -1,6 +1,11 @@
+import { ReactNode } from 'react';
 import './Toolbar.scss';
 
-export const Toolbar = props => (
+interface ToolbarProps {
+    children: ReactNode;
+}
+
+export const Toolbar = (props: ToolbarProps) => (
     <div className="toolbar">
         {props.children}
     </div>

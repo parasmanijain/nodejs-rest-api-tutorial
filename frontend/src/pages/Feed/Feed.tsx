@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useEffect, useState } from 'react';
+import { Fragment, useCallback, useEffect, useState, FormEvent } from 'react';
 import { Post } from '../../components/Feed/Post/Post';
 import { Button } from '../../components/Button/Button';
 import { FeedEdit } from '../../components/Feed/FeedEdit/FeedEdit';
@@ -8,18 +8,35 @@ import { Loader } from '../../components/Loader/Loader';
 import { ErrorHandler } from '../../components/ErrorHandler/ErrorHandler';
 import './Feed.scss';
 
+interface PostData {
+  _id: string;
+  title: string;
+  content: string;
+  creator: {
+    name: string;
+  };
+  createdAt: string;
+  imageUrl?: string;
+}
+
+interface PostFormData {
+  title: string;
+  image: string | File;
+  content: string;
+}
+
 export const Feed = () => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [posts, setPosts] = useState<any[]>([]);
-  const [totalPosts, setTotalPosts] = useState(0);
-  const [editPost, setEditPost] = useState<any>(null);
-  const [status, setStatus] = useState('');
-  const [postPage, setPostPage] = useState(1);
-  const [postsLoading, setPostsLoading] = useState(true);
-  const [editLoading, setEditLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [posts, setPosts] = useState<PostData[]>([]);
+  const [totalPosts, setTotalPosts] = useState<number>(0);
+  const [editPost, setEditPost] = useState<PostData | null>(null);
+  const [status, setStatus] = useState<string>('');
+  const [postPage, setPostPage] = useState<number>(1);
+  const [postsLoading, setPostsLoading] = useState<boolean>(true);
+  const [editLoading, setEditLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const catchError = (err) => setError(err);
+  const catchError = (err: Error) => setError(err);
   const errorHandler = () => setError(null);
 
   const loadPosts = useCallback(
@@ -75,7 +92,7 @@ export const Feed = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // run once on mount
 
-  const statusUpdateHandler = (event) => {
+  const statusUpdateHandler = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     fetch('URL')
       .then((res) => {
@@ -93,8 +110,8 @@ export const Feed = () => {
 
   const newPostHandler = () => setIsEditing(true);
 
-  const startEditPostHandler = (postId) => {
-    const loadedPost = { ...posts.find((p) => p._id === postId) };
+  const startEditPostHandler = (postId: string) => {
+    const loadedPost = { ...posts.find((p) => p._id === postId)! };
     setIsEditing(true);
     setEditPost(loadedPost);
   };
@@ -104,7 +121,7 @@ export const Feed = () => {
     setEditPost(null);
   };
 
-  const finishEditHandler = (postData) => {
+  const finishEditHandler = (postData: PostFormData) => {
     setEditLoading(true);
     let url = 'URL';
     if (editPost) {
@@ -119,7 +136,7 @@ export const Feed = () => {
         return res.json();
       })
       .then((resData) => {
-        const post = {
+        const post: PostData = {
           _id: resData.post._id,
           title: resData.post.title,
           content: resData.post.content,
@@ -149,9 +166,9 @@ export const Feed = () => {
       });
   };
 
-  const statusInputChangeHandler = (_input, value) => setStatus(value);
+  const statusInputChangeHandler = (_input: string, value: string) => setStatus(value);
 
-  const deletePostHandler = (postId) => {
+  const deletePostHandler = (postId: string) => {
     setPostsLoading(true);
     fetch('URL')
       .then((res) => {
@@ -189,6 +206,10 @@ export const Feed = () => {
             control="input"
             onChange={statusInputChangeHandler}
             value={status}
+            id="status"
+            valid={true}
+            touched={false}
+            onBlur={() => { }}
           />
           <Button mode="flat" type="submit">
             Update

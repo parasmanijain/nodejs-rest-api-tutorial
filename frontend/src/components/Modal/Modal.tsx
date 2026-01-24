@@ -1,8 +1,18 @@
+import { ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "../Button/Button";
 import "./Modal.scss";
 
-export const Modal = (props) =>
+interface ModalProps {
+  title: string;
+  children: ReactNode;
+  onCancelModal: () => void;
+  onAcceptModal: () => void;
+  acceptEnabled?: boolean;
+  isLoading?: boolean;
+}
+
+export const Modal = (props: ModalProps) =>
   createPortal(
     <div className="modal">
       <header className="modal__header">
@@ -23,5 +33,5 @@ export const Modal = (props) =>
         </Button>
       </div>
     </div>,
-    document.getElementById("modal-root"),
+    document.getElementById("modal-root")!,
   );

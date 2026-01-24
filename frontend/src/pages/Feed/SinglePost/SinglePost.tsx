@@ -3,11 +3,21 @@ import { useParams } from 'react-router-dom';
 import { Image } from '../../../components/Image/Image';
 import './SinglePost.scss';
 
-type RouteParams = { postId?: string };
+interface RouteParams {
+  postId?: string;
+}
+
+interface PostState {
+  title: string;
+  author: string;
+  date: string;
+  image: string;
+  content: string;
+}
 
 export const SinglePost = () => {
   const { postId } = useParams<RouteParams>();
-  const [post, setPost] = useState({
+  const [post, setPost] = useState<PostState>({
     title: '',
     author: '',
     date: '',

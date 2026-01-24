@@ -1,8 +1,18 @@
-
 import { Button } from '../../Button/Button';
 import './Post.scss';
 
-export const Post = props => (
+interface PostProps {
+  id: string;
+  author: string;
+  date: string;
+  title: string;
+  image?: string;
+  content: string;
+  onStartEdit: () => void;
+  onDelete: () => void;
+}
+
+export const Post = (props: PostProps) => (
   <article className="post">
     <header className="post__header">
       <h3 className="post__meta">

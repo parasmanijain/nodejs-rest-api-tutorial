@@ -1,6 +1,12 @@
 import './Image.scss';
 
-export const Image = props => (
+interface ImageProps {
+  imageUrl: string;
+  contain?: boolean;
+  left?: boolean;
+}
+
+export const Image = (props: ImageProps) => (
   <div
     className="image"
     style={{

@@ -6,16 +6,19 @@ import { MainNavigation } from './components/Navigation/MainNavigation/MainNavig
 import { MobileNavigation } from './components/Navigation/MobileNavigation/MobileNavigation';
 import { ErrorHandler } from './components/ErrorHandler/ErrorHandler';
 
-type Props = { children?: ReactNode };
+interface AppProps {
+  children?: ReactNode;
+}
 
-export const App = ({ children }: Props) => {
-  const [showBackdrop, setShowBackdrop] = useState(false);
-  const [showMobileNav, setShowMobileNav] = useState(false);
-  const [isAuth, setIsAuth] = useState(false);
+export const App = ({ children }: AppProps) => {
+  const [showBackdrop, setShowBackdrop] = useState<boolean>(false);
+  const [showMobileNav, setShowMobileNav] = useState<boolean>(false);
+  const [isAuth, setIsAuth] = useState<boolean>(false);
   const [, setToken] = useState<string | null>(null);
   const [, setUserId] = useState<string | null>(null);
   const [error, setError] = useState<Error | null>(null);
   const logoutTimerRef = useRef<number | null>(null);
+
   const logoutHandler = useCallback(() => {
     setIsAuth(false);
     setToken(null);
@@ -78,9 +81,7 @@ export const App = ({ children }: Props) => {
   return (
     <Fragment>
       {showBackdrop && <Backdrop onClick={backdropClickHandler} />}
-
       <ErrorHandler error={error} onHandle={errorHandler} />
-
       <Layout
         header={
           <Toolbar>
@@ -101,7 +102,6 @@ export const App = ({ children }: Props) => {
           />
         }
       />
-
       {children}
     </Fragment>
   );

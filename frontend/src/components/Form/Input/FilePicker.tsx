@@ -1,6 +1,16 @@
 import './Input.scss';
 
-export const FilePicker = props => (
+interface FilePickerProps {
+  id: string;
+  label: string;
+  control: string;
+  valid: boolean;
+  touched: boolean;
+  onChange: (id: string, value: string, files?: FileList | null) => void;
+  onBlur: () => void;
+}
+
+export const FilePicker = (props: FilePickerProps) => (
   <div className="input">
     <label htmlFor={props.id}>{props.label}</label>
     <input

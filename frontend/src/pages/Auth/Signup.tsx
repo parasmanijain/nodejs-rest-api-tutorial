@@ -1,11 +1,33 @@
-import { useState } from 'react';
-import { Input } from '../../components/Form/Input/Input.tsx';
-import { Button } from '../../components/Button/Button.tsx';
-import { required, length, email } from '../../util/validators.ts';
+import { FormEvent, useState } from 'react';
+import { Input } from '../../components/Form/Input/Input';
+import { Button } from '../../components/Button/Button';
+import { required, length, email } from '../../util/validators';
 import { Auth } from './Auth';
 
-export const Signup = (props) => {
-  const [signupForm, setSignupForm] = useState({
+interface FormField {
+  value: string;
+  valid: boolean;
+  touched: boolean;
+  validators: Array<(value: string) => boolean>;
+}
+
+interface SignupFormData {
+  email: FormField;
+  password: FormField;
+  name: FormField;
+}
+
+interface SignupData {
+  signupForm: SignupFormData;
+}
+
+interface SignupProps {
+  loading: boolean;
+  onSignup: (event: FormEvent<HTMLFormElement>, authData: SignupData) => void;
+}
+
+export const Signup = (props: SignupProps) => {
+  const [signupForm, setSignupForm] = useState<SignupFormData>({
     email: {
       value: '',
       valid: false,
@@ -25,9 +47,9 @@ export const Signup = (props) => {
       validators: [required],
     },
   });
-  const [formIsValid, setFormIsValid] = useState(false);
+  const [formIsValid, setFormIsValid] = useState<boolean>(false);
 
-  const inputChangeHandler = (input, value) => {
+  const inputChangeHandler = (input: keyof SignupFormData, value: string) => {
     setSignupForm((prevState) => {
       let isValid = true;
       for (const validator of prevState[input].validators) {
@@ -43,14 +65,14 @@ export const Signup = (props) => {
       };
       let overallValid = true;
       for (const inputName in updatedForm) {
-        overallValid = overallValid && updatedForm[inputName].valid;
+        overallValid = overallValid && updatedForm[inputName as keyof SignupFormData].valid;
       }
       setFormIsValid(overallValid);
       return updatedForm;
     });
   };
 
-  const inputBlurHandler = (input) => {
+  const inputBlurHandler = (input: keyof SignupFormData) => {
     setSignupForm((prevState) => ({
       ...prevState,
       [input]: {

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 
-export function getPosts(_req: Request, res: Response, _next: NextFunction) {
+export const getPosts = (_req: Request, res: Response, _next: NextFunction) => {
   res.status(200).json({
     posts: [
       {
@@ -15,14 +15,24 @@ export function getPosts(_req: Request, res: Response, _next: NextFunction) {
       },
     ],
   });
-}
+};
 
-export function createPost(req: Request, res: Response, _next: NextFunction) {
+export const createPost = (
+  req: Request,
+  res: Response,
+  _next: NextFunction,
+) => {
   const title = req.body.title;
   const content = req.body.content;
   // Create post in db
   res.status(201).json({
     message: "Post created successfully!",
-    post: { id: new Date().toISOString(), title: title, content: content },
+    post: {
+      _id: new Date().toISOString(),
+      title: title,
+      content: content,
+      creator: { name: "Maximilian" },
+      createdAt: new Date(),
+    },
   });
-}
+};

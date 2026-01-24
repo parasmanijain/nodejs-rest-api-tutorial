@@ -7,7 +7,41 @@ import { Image } from '../../Image/Image';
 import { required, length } from '../../../util/validators';
 import { generateBase64FromImage } from '../../../util/image';
 
-const POST_FORM = {
+interface FormField {
+  value: string | File;
+  valid: boolean;
+  touched: boolean;
+  validators: Array<(value: string) => boolean>;
+}
+
+interface PostFormData {
+  title: FormField;
+  image: FormField;
+  content: FormField;
+}
+
+interface Post {
+  _id: string;
+  title: string;
+  content: string;
+  imagePath: string;
+}
+
+interface PostData {
+  title: string;
+  image: string | File;
+  content: string;
+}
+
+interface FeedEditProps {
+  editing: boolean;
+  selectedPost?: Post | null;
+  loading: boolean;
+  onCancelEdit: () => void;
+  onFinishEdit: (post: PostData) => void;
+}
+
+const POST_FORM: PostFormData = {
   title: {
     value: '',
     valid: false,
@@ -28,9 +62,9 @@ const POST_FORM = {
   },
 };
 
-export const FeedEdit = (props) => {
-  const [postForm, setPostForm] = useState(POST_FORM);
-  const [formIsValid, setFormIsValid] = useState(false);
+export const FeedEdit = (props: FeedEditProps) => {
+  const [postForm, setPostForm] = useState<PostFormData>(POST_FORM);
+  const [formIsValid, setFormIsValid] = useState<boolean>(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
@@ -38,17 +72,17 @@ export const FeedEdit = (props) => {
       setPostForm((prev) => ({
         title: {
           ...prev.title,
-          value: props.selectedPost.title,
+          value: props.selectedPost!.title,
           valid: true,
         },
         image: {
           ...prev.image,
-          value: props.selectedPost.imagePath,
+          value: props.selectedPost!.imagePath,
           valid: true,
         },
         content: {
           ...prev.content,
-          value: props.selectedPost.content,
+          value: props.selectedPost!.content,
           valid: true,
         },
       }));
@@ -56,7 +90,7 @@ export const FeedEdit = (props) => {
     }
   }, [props.editing, props.selectedPost]);
 
-  const postInputChangeHandler = (input, value, files) => {
+  const postInputChangeHandler = (input: keyof PostFormData, value: string, files?: FileList | null) => {
     if (files) {
       generateBase64FromImage(files[0])
         .then((b64: string) => {
@@ -81,14 +115,14 @@ export const FeedEdit = (props) => {
       };
       let newFormIsValid = true;
       for (const inputName in updatedForm) {
-        newFormIsValid = newFormIsValid && updatedForm[inputName].valid;
+        newFormIsValid = newFormIsValid && updatedForm[inputName as keyof PostFormData].valid;
       }
       setFormIsValid(newFormIsValid);
       return updatedForm;
     });
   };
 
-  const inputBlurHandler = (input) => {
+  const inputBlurHandler = (input: keyof PostFormData) => {
     setPostForm((prevState) => ({
       ...prevState,
       [input]: {
@@ -106,10 +140,10 @@ export const FeedEdit = (props) => {
   };
 
   const acceptPostChangeHandler = () => {
-    const post = {
-      title: postForm.title.value,
+    const post: PostData = {
+      title: postForm.title.value as string,
       image: postForm.image.value,
-      content: postForm.content.value,
+      content: postForm.content.value as string,
     };
     props.onFinishEdit(post);
     setPostForm(POST_FORM);
@@ -136,7 +170,7 @@ export const FeedEdit = (props) => {
             onBlur={inputBlurHandler.bind(null, 'title')}
             valid={postForm['title'].valid}
             touched={postForm['title'].touched}
-            value={postForm['title'].value}
+            value={postForm['title'].value as string}
           />
           <FilePicker
             id="image"
@@ -160,7 +194,7 @@ export const FeedEdit = (props) => {
             onBlur={inputBlurHandler.bind(null, 'content')}
             valid={postForm['content'].valid}
             touched={postForm['content'].touched}
-            value={postForm['content'].value}
+            value={postForm['content'].value as string}
           />
         </form>
       </Modal>

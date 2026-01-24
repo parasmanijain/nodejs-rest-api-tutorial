@@ -1,6 +1,8 @@
 import "./Loader.scss";
 
-export const Loader = (props) => (
+interface LoaderProps { }
+
+export const Loader = (props: LoaderProps) => (
   <div className="loader">
     <div />
     <div />
