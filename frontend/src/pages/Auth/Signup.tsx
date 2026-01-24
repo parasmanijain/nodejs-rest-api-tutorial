@@ -1,9 +1,8 @@
 import { Component } from 'react';
-
-import Input from '../../components/Form/Input/Input.tsx';
-import Button from '../../components/Button/Button.tsx';
+import { Input } from '../../components/Form/Input/Input.tsx';
+import { Button } from '../../components/Button/Button.tsx';
 import { required, length, email } from '../../util/validators.ts';
-import Auth from './Auth';
+import { Auth } from './Auth';
 
 class Signup extends Component {
   state = {

@@ -1,10 +1,9 @@
-import React, { Component, Fragment } from 'react';
-
-import Backdrop from '../../Backdrop/Backdrop';
-import Modal from '../../Modal/Modal';
-import Input from '../../Form/Input/Input';
-import FilePicker from '../../Form/Input/FilePicker';
-import Image from '../../Image/Image';
+import { Component, Fragment } from 'react';
+import { Backdrop } from '../../Backdrop/Backdrop';
+import { Modal } from '../../Modal/Modal';
+import { Input } from '../../Form/Input/Input';
+import { FilePicker } from '../../Form/Input/FilePicker';
+import { Image } from '../../Image/Image';
 import { required, length } from '../../../util/validators';
 import { generateBase64FromImage } from '../../../util/image';
 
@@ -29,7 +28,7 @@ const POST_FORM = {
   }
 };
 
-class FeedEdit extends Component {
+export class FeedEdit extends Component {
   state = {
     postForm: POST_FORM,
     formIsValid: false,
@@ -187,5 +186,3 @@ class FeedEdit extends Component {
     ) : null;
   }
 }
-
-export default FeedEdit;

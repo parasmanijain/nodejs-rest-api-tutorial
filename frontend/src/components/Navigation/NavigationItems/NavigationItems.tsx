@@ -1,4 +1,3 @@
-import React from 'react';
 import { NavLink } from 'react-router-dom';
 
 import './NavigationItems.scss';
@@ -9,7 +8,7 @@ const navItems = [
   { id: 'signup', text: 'Signup', link: '/signup', auth: false }
 ];
 
-const navigationItems = props => [
+export const NavigationItems = props => [
   ...navItems.filter(item => item.auth === props.isAuth).map(item => (
     <li
       key={item.id}
@@ -26,5 +25,3 @@ const navigationItems = props => [
     </li>
   )
 ];
-
-export default navigationItems;

@@ -1,8 +1,7 @@
 import { Link } from 'react-router-dom';
-
 import './Button.scss';
 
-const button = props =>
+export const Button = props =>
   !props.link ? (
     <button
       className={[
@@ -28,5 +27,3 @@ const button = props =>
       {props.children}
     </Link>
   );
-
-export default button;

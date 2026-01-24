@@ -1,8 +1,8 @@
 import { Fragment } from 'react';
-import Backdrop from '../Backdrop/Backdrop.tsx';
-import Modal from '../Modal/Modal.tsx';
+import { Backdrop } from '../Backdrop/Backdrop.tsx';
+import { Modal } from '../Modal/Modal.tsx';
 
-const errorHandler = props => (
+export const ErrorHandler = props => (
   <Fragment>
     {props.error && <Backdrop onClick={props.onHandle} />}
     {props.error && (
@@ -17,5 +17,3 @@ const errorHandler = props => (
     )}
   </Fragment>
 );
-
-export default errorHandler;

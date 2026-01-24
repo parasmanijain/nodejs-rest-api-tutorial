@@ -1,10 +1,10 @@
 import { Component, Fragment, ReactNode } from 'react';
-import Layout from './components/Layout/Layout';
-import Backdrop from './components/Backdrop/Backdrop';
-import Toolbar from './components/Toolbar/Toolbar';
-import MainNavigation from './components/Navigation/MainNavigation/MainNavigation';
-import MobileNavigation from './components/Navigation/MobileNavigation/MobileNavigation';
-import ErrorHandler from './components/ErrorHandler/ErrorHandler';
+import { Layout } from './components/Layout/Layout';
+import { Backdrop } from './components/Backdrop/Backdrop';
+import { Toolbar } from './components/Toolbar/Toolbar';
+import { MainNavigation } from './components/Navigation/MainNavigation/MainNavigation';
+import { MobileNavigation } from './components/Navigation/MobileNavigation/MobileNavigation';
+import { ErrorHandler } from './components/ErrorHandler/ErrorHandler';
 
 interface AppState {
   showBackdrop: boolean;
@@ -16,7 +16,7 @@ interface AppState {
   error: Error | null;
 }
 
-class App extends Component<{ children?: ReactNode }, AppState> {
+export class App extends Component<{ children?: ReactNode }, AppState> {
   state: AppState = {
     showBackdrop: false,
     showMobileNav: false,
@@ -109,5 +109,3 @@ class App extends Component<{ children?: ReactNode }, AppState> {
     );
   }
 }
-
-export default App;

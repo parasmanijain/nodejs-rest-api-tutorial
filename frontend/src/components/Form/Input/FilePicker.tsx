@@ -1,8 +1,6 @@
-import React from 'react';
-
 import './Input.scss';
 
-const filePicker = props => (
+export const FilePicker = props => (
   <div className="input">
     <label htmlFor={props.id}>{props.label}</label>
     <input
@@ -17,5 +15,3 @@ const filePicker = props => (
     />
   </div>
 );
-
-export default filePicker;

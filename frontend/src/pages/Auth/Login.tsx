@@ -1,11 +1,10 @@
 import { Component } from 'react';
-
-import Input from '../../components/Form/Input/Input';
-import Button from '../../components/Button/Button';
+import { Input } from '../../components/Form/Input/Input';
+import { Button } from '../../components/Button/Button';
 import { required, length, email } from '../../util/validators';
-import Auth from './Auth';
+import { Auth } from './Auth';
 
-class Login extends Component {
+export class Login extends Component {
   state = {
     loginForm: {
       email: {
@@ -104,5 +103,3 @@ class Login extends Component {
     );
   }
 }
-
-export default Login;

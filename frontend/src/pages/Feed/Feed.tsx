@@ -1,15 +1,14 @@
-import React, { Component, Fragment } from 'react';
-
-import Post from '../../components/Feed/Post/Post';
-import Button from '../../components/Button/Button';
-import FeedEdit from '../../components/Feed/FeedEdit/FeedEdit';
-import Input from '../../components/Form/Input/Input';
-import Paginator from '../../components/Paginator/Paginator';
-import Loader from '../../components/Loader/Loader';
-import ErrorHandler from '../../components/ErrorHandler/ErrorHandler';
+import { Component, Fragment } from 'react';
+import { Post } from '../../components/Feed/Post/Post';
+import { Button } from '../../components/Button/Button';
+import { FeedEdit } from '../../components/Feed/FeedEdit/FeedEdit';
+import { Input } from '../../components/Form/Input/Input';
+import { Paginator } from '../../components/Paginator/Paginator';
+import { Loader } from '../../components/Loader/Loader';
+import { ErrorHandler } from '../../components/ErrorHandler/ErrorHandler';
 import './Feed.scss';
 
-class Feed extends Component {
+export class Feed extends Component {
   state = {
     isEditing: false,
     posts: [],
@@ -255,5 +254,3 @@ class Feed extends Component {
     );
   }
 }
-
-export default Feed;

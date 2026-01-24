@@ -1,8 +1,6 @@
-import React from 'react';
-
 import './Paginator.scss';
 
-const paginator = props => (
+export const Paginator = props => (
   <div className="paginator">
     {props.children}
     <div className="paginator__controls">
@@ -19,5 +17,3 @@ const paginator = props => (
     </div>
   </div>
 );
-
-export default paginator;

@@ -1,4 +1,4 @@
-export const generateBase64FromImage = (imageFile) => {
+export const generateBase64FromImage = (imageFile: Blob) => {
   const reader = new FileReader();
   const promise = new Promise((resolve, reject) => {
     reader.onload = (e) => resolve(e.target.result);

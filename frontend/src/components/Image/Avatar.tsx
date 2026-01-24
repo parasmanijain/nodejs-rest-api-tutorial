@@ -1,9 +1,7 @@
-import React from 'react';
-
-import Image from './Image';
+import { Image } from './Image';
 import './Avatar.scss';
 
-const avatar = props => (
+export const Avatar = props => (
   <div
     className="avatar"
     style={{ width: props.size + 'rem', height: props.size + 'rem' }}
@@ -11,5 +9,3 @@ const avatar = props => (
     <Image imageUrl={props.image} />
   </div>
 );
-
-export default avatar;

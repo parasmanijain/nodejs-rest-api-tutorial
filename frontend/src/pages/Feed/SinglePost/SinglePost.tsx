@@ -1,9 +1,8 @@
-import React, { Component } from 'react';
-
-import Image from '../../../components/Image/Image';
+import { Component } from 'react';
+import { Image } from '../../../components/Image/Image';
 import './SinglePost.scss';
 
-class SinglePost extends Component {
+export class SinglePost extends Component {
   state = {
     title: '',
     author: '',
@@ -49,5 +48,3 @@ class SinglePost extends Component {
     );
   }
 }
-
-export default SinglePost;
