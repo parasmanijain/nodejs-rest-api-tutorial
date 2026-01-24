@@ -9,8 +9,7 @@
   },
   "scripts": {
     "start": "vite --host",
-    "build": "vite build",
-    "test": "react-scripts test"
+    "build": "vite build"
   },
   "eslintConfig": {
     "extends": "react-app"

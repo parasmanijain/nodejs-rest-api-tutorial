@@ -1,5 +1,5 @@
 import express, { json } from "express";
-import feedRoutes from "./routes/feed";
+import feedRoutes from "./routes/feed.js";
 
 const app = express();
 
