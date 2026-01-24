@@ -12,13 +12,10 @@ export const App = ({ children }: Props) => {
   const [showBackdrop, setShowBackdrop] = useState(false);
   const [showMobileNav, setShowMobileNav] = useState(false);
   const [isAuth, setIsAuth] = useState(false);
-  const [token, setToken] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
-  const [, setAuthLoading] = useState(false);
+  const [, setToken] = useState<string | null>(null);
+  const [, setUserId] = useState<string | null>(null);
   const [error, setError] = useState<Error | null>(null);
-
   const logoutTimerRef = useRef<number | null>(null);
-
   const logoutHandler = useCallback(() => {
     setIsAuth(false);
     setToken(null);
