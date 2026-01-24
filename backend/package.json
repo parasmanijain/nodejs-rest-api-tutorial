@@ -14,10 +14,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "body-parser": "^1.18.3",
-    "express": "^4.16.3"
+    "express": "^5.2.1"
   },
   "devDependencies": {
-    "nodemon": "^1.18.4"
+    "nodemon": "^3.1.11"
   }
 }
