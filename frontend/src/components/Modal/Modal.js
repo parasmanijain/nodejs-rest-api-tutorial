@@ -1,11 +1,10 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
 
+import {createPortal} from 'react-dom';
 import Button from '../Button/Button';
 import './Modal.css';
 
 const modal = props =>
-  ReactDOM.createPortal(
+  createPortal(
     <div className="modal">
       <header className="modal__header">
         <h1>{props.title}</h1>

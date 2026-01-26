@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 import NavigationItems from '../NavigationItems/NavigationItems';
 import './MobileNavigation.css';
