@@ -3,20 +3,7 @@ import { required, length, email } from "../../util/validators";
 import { Input } from "../../components/Form/Input/Input";
 import { Button } from "../../components/Button/Button";
 import { Auth } from "./Auth";
-
-type Validator = (value: string) => boolean;
-
-interface Field {
-  value: string;
-  valid: boolean;
-  touched: boolean;
-  validators: Validator[];
-}
-
-interface LoginForm {
-  email: Field;
-  password: Field;
-}
+import type { LoginForm } from "../../types/form";
 
 export interface LoginProps {
   onLogin: (
@@ -26,7 +13,7 @@ export interface LoginProps {
   loading?: boolean;
 }
 
-export const Login: FC<LoginProps> = (props) => {
+export const Login: FC<LoginProps> = ({ onLogin, loading }) => {
   const [loginForm, setLoginForm] = useState<LoginForm>({
     email: {
       value: "",
@@ -41,28 +28,28 @@ export const Login: FC<LoginProps> = (props) => {
       validators: [required, length({ min: 5 })],
     },
   });
-  const [, setFormIsValid] = useState<boolean>(false);
 
-  const inputChangeHandler = (input: keyof LoginForm, value: string) => {
+  const inputChangeHandler = (
+    id: string,
+    value: string,
+    _files?: FileList | null,
+  ) => {
+    const input = id as keyof LoginForm;
+
     setLoginForm((prevState) => {
       let isValid = true;
       for (const validator of prevState[input].validators) {
         isValid = isValid && validator(value);
       }
-      const updatedForm: LoginForm = {
+
+      return {
         ...prevState,
         [input]: {
           ...prevState[input],
-          valid: isValid,
           value,
+          valid: isValid,
         },
       };
-      let overallValid = true;
-      for (const inputName in updatedForm) {
-        overallValid = overallValid && (updatedForm as any)[inputName].valid;
-      }
-      setFormIsValid(overallValid);
-      return updatedForm;
     });
   };
 
@@ -80,7 +67,7 @@ export const Login: FC<LoginProps> = (props) => {
     <Auth>
       <form
         onSubmit={(e) =>
-          props.onLogin(e, {
+          onLogin(e, {
             email: loginForm.email.value,
             password: loginForm.password.value,
           })
@@ -93,9 +80,9 @@ export const Login: FC<LoginProps> = (props) => {
           control="input"
           onChange={inputChangeHandler}
           onBlur={() => inputBlurHandler("email")}
-          value={loginForm["email"].value}
-          valid={loginForm["email"].valid}
-          touched={loginForm["email"].touched}
+          value={loginForm.email.value}
+          valid={loginForm.email.valid}
+          touched={loginForm.email.touched}
         />
         <Input
           id="password"
@@ -104,11 +91,11 @@ export const Login: FC<LoginProps> = (props) => {
           control="input"
           onChange={inputChangeHandler}
           onBlur={() => inputBlurHandler("password")}
-          value={loginForm["password"].value}
-          valid={loginForm["password"].valid}
-          touched={loginForm["password"].touched}
+          value={loginForm.password.value}
+          valid={loginForm.password.valid}
+          touched={loginForm.password.touched}
         />
-        <Button design="raised" type="submit" loading={props.loading}>
+        <Button design="raised" type="submit" loading={loading}>
           Login
         </Button>
       </form>

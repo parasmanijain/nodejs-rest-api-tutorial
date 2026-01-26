@@ -7,10 +7,10 @@ export interface LayoutProps {
   children?: ReactNode;
 }
 
-export const Layout: FC<LayoutProps> = (props) => (
+export const Layout: FC<LayoutProps> = ({ header, mobileNav, children }) => (
   <Fragment>
-    <header className={classes["main-header"]}>{props.header}</header>
-    {props.mobileNav}
-    <main className={classes["content"]}>{props.children}</main>
+    <header className={classes["main-header"]}>{header}</header>
+    {mobileNav}
+    <main className={classes["content"]}>{children}</main>
   </Fragment>
 );

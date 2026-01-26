@@ -7,11 +7,11 @@ export interface AvatarProps {
   size: number; // in rem
 }
 
-export const Avatar: FC<AvatarProps> = (props) => (
+export const Avatar: FC<AvatarProps> = ({ size, image }) => (
   <div
     className={classes["avatar"]}
-    style={{ width: props.size + "rem", height: props.size + "rem" }}
+    style={{ width: size + "rem", height: size + "rem" }}
   >
-    <Image imageUrl={props.image} />
+    <Image imageUrl={image} />
   </div>
 );

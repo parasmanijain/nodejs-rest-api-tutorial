@@ -17,29 +17,29 @@ export interface NavigationItemsProps {
   onLogout: () => void;
 }
 
-export const NavigationItems: FC<NavigationItemsProps> = (props) => {
+export const NavigationItems: FC<NavigationItemsProps> = ({ isAuth, mobile, onLogout, onChoose }) => {
   const liClassName = [
     classes['navigation-item'],
-    props.mobile ? classes['mobile'] : ''
+    mobile ? classes['mobile'] : ''
   ]
     .filter(Boolean)
     .join(' ');
   const items = [
     ...navItems
-      .filter((item) => item.auth === props.isAuth)
+      .filter((item) => item.auth === isAuth)
       .map((item) => (
         <li
           key={item.id}
           className={liClassName}
         >
-          <NavLink to={item.link} onClick={props.onChoose}>
+          <NavLink to={item.link} onClick={onChoose}>
             {item.text}
           </NavLink>
         </li>
       )),
-    props.isAuth && (
+    isAuth && (
       <li className={classes["navigation-item"]} key="logout">
-        <button onClick={props.onLogout}>Logout</button>
+        <button onClick={onLogout}>Logout</button>
       </li>
     ),
   ].filter(Boolean) as ReactNode[];

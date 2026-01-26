@@ -26,7 +26,7 @@ export interface FeedPost {
   imageUrl?: string;
 }
 
-export const Feed: FC<FeedProps> = ({ token }) => {
+export const Feed: FC<FeedProps> = ({ token, userId }) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [totalPosts, setTotalPosts] = useState<number>(0);

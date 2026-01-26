@@ -10,6 +10,7 @@ import { Feed } from './pages/Feed/Feed';
 import { SinglePost } from './pages/Feed/SinglePost/SinglePost';
 import { Login } from './pages/Auth/Login';
 import { Signup } from './pages/Auth/Signup';
+import { SignupForm } from './types/form';
 import './App.scss';
 
 export const App: FC = () => {
@@ -126,18 +127,6 @@ export const App: FC = () => {
         setError({ message: err instanceof Error ? err.message : String(err) });
       });
   };
-
-  interface Field<T = string> {
-    value: T;
-    valid: boolean;
-    touched: boolean;
-    validators: ((value: unknown) => boolean)[];
-  }
-  interface SignupForm {
-    email: Field<string>;
-    password: Field<string>;
-    name: Field<string>;
-  }
 
   const signupHandler = (
     event: FormEvent<HTMLFormElement>,

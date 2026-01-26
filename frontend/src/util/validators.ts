@@ -1,5 +1,12 @@
 export const required = (value: string): boolean => value.trim() !== "";
 
+export const fileRequired = (value: File | string): boolean => {
+  if (value instanceof File) {
+    return value.size > 0;
+  }
+  return value.trim().length > 0;
+};
+
 export const length =
   (config: { min?: number; max?: number }) =>
   (value: string): boolean => {

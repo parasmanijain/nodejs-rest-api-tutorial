@@ -8,7 +8,7 @@ export interface SinglePostProps {
   token: string | null;
 }
 
-export const SinglePost: FC<SinglePostProps> = ({ token }) => {
+export const SinglePost: FC<SinglePostProps> = ({ token, userId }) => {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [date, setDate] = useState("");

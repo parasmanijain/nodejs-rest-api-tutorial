@@ -10,22 +10,22 @@ export interface FilePickerProps {
   onBlur?: FocusEventHandler<HTMLInputElement>;
 }
 
-export const FilePicker: FC<FilePickerProps> = (props) => {
+export const FilePicker: FC<FilePickerProps> = () => {
   const inputClassName = [
-    props.valid ? classes.valid : classes.invalid,
-    props.touched ? classes.touched : classes.untouched,
+    valid ? classes.valid : classes.invalid,
+    touched ? classes.touched : classes.untouched,
   ].join(" ");
   return (
     <div className={classes["input"]}>
-      <label htmlFor={props.id}>{props.label}</label>
+      <label htmlFor={id}>{label}</label>
       <input
         className={inputClassName}
         type="file"
-        id={props.id}
+        id={id}
         onChange={(e) =>
-          props.onChange(props.id, e.target.value, e.target.files)
+          onChange(id, e.target.value, e.target.files)
         }
-        onBlur={props.onBlur}
+        onBlur={onBlur}
       />
     </div>
   );

@@ -18,40 +18,50 @@ export interface InputProps {
   onBlur?: FocusEventHandler<HTMLInputElement | HTMLTextAreaElement>;
 }
 
-export const Input: FC<InputProps> = (props) => {
+export const Input: FC<InputProps> = ({
+  valid,
+  touched,
+  id,
+  control,
+  type,
+  required,
+  value,
+  placeholder,
+  onChange,
+  onBlur,
+  label, rows
+}) => {
   const fieldClassName = [
-    props.valid ? classes.valid : classes.invalid,
-    props.touched ? classes.touched : classes.untouched,
+    valid ? classes.valid : classes.invalid,
+    touched ? classes.touched : classes.untouched,
   ]
     .filter(Boolean)
     .join(" ");
 
   return (
     <div className={classes["input"]}>
-      {props.label && <label htmlFor={props.id}>{props.label}</label>}
-      {props.control === "input" && (
+      {label && <label htmlFor={id}>{label}</label>}
+      {control === "input" && (
         <input
           className={fieldClassName}
-          type={props.type}
-          id={props.id}
-          required={props.required}
-          value={props.value}
-          placeholder={props.placeholder}
-          onChange={(e) =>
-            props.onChange(props.id, e.target.value, e.target.files)
-          }
-          onBlur={props.onBlur as FocusEventHandler<HTMLInputElement>}
+          type={type}
+          id={id}
+          required={required}
+          value={value}
+          placeholder={placeholder}
+          onChange={(e) => onChange(id, e.target.value, e.target.files)}
+          onBlur={onBlur as FocusEventHandler<HTMLInputElement>}
         />
       )}
-      {props.control === "textarea" && (
+      {control === "textarea" && (
         <textarea
           className={fieldClassName}
-          id={props.id}
-          rows={props.rows}
-          required={props.required}
-          value={props.value}
-          onChange={(e) => props.onChange(props.id, e.target.value)}
-          onBlur={props.onBlur as FocusEventHandler<HTMLTextAreaElement>}
+          id={id}
+          rows={rows}
+          required={required}
+          value={value}
+          onChange={(e) => onChange(id, e.target.value)}
+          onBlur={onBlur as FocusEventHandler<HTMLTextAreaElement>}
         />
       )}
     </div>

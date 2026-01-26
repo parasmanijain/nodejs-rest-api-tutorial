@@ -5,6 +5,6 @@ export interface AuthProps {
     children?: ReactNode;
 }
 
-export const Auth: FC<AuthProps> = (props) => (
-    <section className={classes["auth-form"]}>{props.children}</section>
+export const Auth: FC<AuthProps> = ({ children }) => (
+    <section className={classes["auth-form"]}>{children}</section>
 );

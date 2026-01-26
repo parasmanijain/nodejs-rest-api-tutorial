@@ -7,13 +7,13 @@ export interface ImageProps {
   left?: boolean;
 }
 
-export const Image: FC<ImageProps> = (props) => (
+export const Image: FC<ImageProps> = ({ imageUrl, contain, left }) => (
   <div
     className={classes["image"]}
     style={{
-      backgroundImage: `url('${props.imageUrl}')`,
-      backgroundSize: props.contain ? "contain" : "cover",
-      backgroundPosition: props.left ? "left" : "center",
+      backgroundImage: `url('${imageUrl}')`,
+      backgroundSize: contain ? "contain" : "cover",
+      backgroundPosition: left ? "left" : "center",
     }}
   />
 );

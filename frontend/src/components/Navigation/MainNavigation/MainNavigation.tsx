@@ -11,9 +11,9 @@ export interface MainNavigationProps {
   onOpenMobileNav: () => void;
 }
 
-export const MainNavigation: FC<MainNavigationProps> = (props) => (
+export const MainNavigation: FC<MainNavigationProps> = ({ isAuth, onLogout, onOpenMobileNav }) => (
   <nav className={classes["main-nav"]}>
-    <MobileToggle onOpen={props.onOpenMobileNav} />
+    <MobileToggle onOpen={onOpenMobileNav} />
     <div className={classes["main-nav__logo"]}>
       <NavLink to="/">
         <Logo />
@@ -21,7 +21,7 @@ export const MainNavigation: FC<MainNavigationProps> = (props) => (
     </div>
     <div className={classes["spacer"]} />
     <ul className={classes["main-nav__items"]}>
-      <NavigationItems isAuth={props.isAuth} onLogout={props.onLogout} />
+      <NavigationItems isAuth={isAuth} onLogout={onLogout} />
     </ul>
   </nav>
 );

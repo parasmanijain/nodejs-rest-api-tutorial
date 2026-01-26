@@ -12,25 +12,25 @@ export interface ModalProps {
   isLoading?: boolean;
 }
 
-export const Modal: FC<ModalProps> = (props) => {
+export const Modal: FC<ModalProps> = ({ children, title, onAcceptModal, onCancelModal, acceptEnabled, isLoading }) => {
   const root = document.getElementById("modal-root");
   if (!root) return null;
 
   return createPortal(
     <div className={classes["modal"]}>
       <header className={classes["modal__header"]}>
-        <h1>{props.title}</h1>
+        <h1>{title}</h1>
       </header>
-      <div className={classes["modal__content"]}>{props.children}</div>
+      <div className={classes["modal__content"]}>{children}</div>
       <div className={classes["modal__actions"]}>
-        <Button design="danger" mode="flat" onClick={props.onCancelModal}>
+        <Button design="danger" mode="flat" onClick={onCancelModal}>
           Cancel
         </Button>
         <Button
           mode="raised"
-          onClick={props.onAcceptModal}
-          disabled={!props.acceptEnabled}
-          loading={props.isLoading}
+          onClick={onAcceptModal}
+          disabled={!acceptEnabled}
+          loading={isLoading}
         >
           Accept
         </Button>

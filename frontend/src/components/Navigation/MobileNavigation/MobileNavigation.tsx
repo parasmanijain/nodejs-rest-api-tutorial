@@ -10,17 +10,17 @@ export interface MobileNavigationProps {
   onLogout: () => void;
 }
 
-export const MobileNavigation: FC<MobileNavigationProps> = (props) => {
+export const MobileNavigation: FC<MobileNavigationProps> = ({ mobile, onLogout, isAuth, open, onChooseItem }) => {
   const navClassName = [
     classes["mobile-nav"],
-    props.open ? classes["open"] : "",
+    open ? classes["open"] : "",
   ]
     .filter(Boolean)
     .join(" ");
 
   const listClassName = [
     classes["mobile-nav__items"],
-    props.mobile ? classes["mobile"] : "",
+    mobile ? classes["mobile"] : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -29,9 +29,9 @@ export const MobileNavigation: FC<MobileNavigationProps> = (props) => {
       <ul className={listClassName}>
         <NavigationItems
           mobile
-          onChoose={props.onChooseItem}
-          isAuth={props.isAuth}
-          onLogout={props.onLogout}
+          onChoose={onChooseItem}
+          isAuth={isAuth}
+          onLogout={onLogout}
         />
       </ul>
     </nav>

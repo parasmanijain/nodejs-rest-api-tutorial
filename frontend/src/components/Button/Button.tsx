@@ -13,26 +13,35 @@ export interface ButtonProps {
   children?: ReactNode;
 }
 
-export const Button: FC<ButtonProps> = (props) => {
+export const Button: FC<ButtonProps> = ({
+  mode,
+  onClick,
+  disabled,
+  loading,
+  type,
+  link,
+  children,
+  design,
+}) => {
   const className = [
     classes.button,
-    props.design ? classes[`button--${props.design}`] : '',
-    props.mode ? classes[`button--${props.mode}`] : ''
+    design ? classes[`button--${design}`] : "",
+    mode ? classes[`button--${mode}`] : "",
   ]
     .filter(Boolean)
-    .join(' ');
-  return !props.link ? (
+    .join(" ");
+  return !link ? (
     <button
       className={className}
-      onClick={props.onClick}
-      disabled={props.disabled || props.loading}
-      type={props.type}
+      onClick={onClick}
+      disabled={disabled || loading}
+      type={type}
     >
-      {props.loading ? "Loading..." : props.children}
+      {loading ? "Loading..." : children}
     </button>
   ) : (
-    <Link className={className} to={props.link}>
-      {props.children}
+    <Link className={className} to={link}>
+      {children}
     </Link>
   );
 };

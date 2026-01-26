@@ -1,19 +1,21 @@
-import { FC, Fragment, useEffect, useRef, useState } from 'react';
-import { Backdrop } from '../../Backdrop/Backdrop';
-import { Modal } from '../../Modal/Modal';
-import { Input } from '../../Form/Input/Input';
-import { FilePicker } from '../../Form/Input/FilePicker';
-import { Image } from '../../Image/Image';
-import { required, length } from '../../../util/validators';
-import { generateBase64FromImage } from '../../../util/image';
+import { FC, Fragment, useEffect, useRef, useState } from "react";
+import { Backdrop } from "../../Backdrop/Backdrop";
+import { Modal } from "../../Modal/Modal";
+import { Input } from "../../Form/Input/Input";
+import { FilePicker } from "../../Form/Input/FilePicker";
+import { Image } from "../../Image/Image";
+import { required, length, fileRequired } from "../../../util/validators";
+import { generateBase64FromImage } from "../../../util/image";
 
-type Validator = (value: unknown) => boolean;
+/* ---------------- Types ---------------- */
+
+type Validator<T = unknown> = (value: T) => boolean;
 
 interface PostFormField<T> {
   value: T;
   valid: boolean;
   touched: boolean;
-  validators: Validator[];
+  validators: Validator<T>[];
 }
 
 interface PostForm {
@@ -33,130 +35,151 @@ export interface FeedEditProps {
   selectedPost?: SelectedPost | null;
   loading?: boolean;
   onCancelEdit: () => void;
-  onFinishEdit: (post: { title: string; image: File | string; content: string }) => void;
+  onFinishEdit: (post: {
+    title: string;
+    image: File | string;
+    content: string;
+  }) => void;
 }
 
 const POST_FORM: PostForm = {
   title: {
-    value: '',
+    value: "",
     valid: false,
     touched: false,
-    validators: [required, length({ min: 5 })]
+    validators: [required, length({ min: 5 })],
   },
   image: {
-    value: '',
+    value: "",
     valid: false,
     touched: false,
-    validators: [required]
+    validators: [fileRequired],
   },
   content: {
-    value: '',
+    value: "",
     valid: false,
     touched: false,
-    validators: [required, length({ min: 5 })]
-  }
+    validators: [required, length({ min: 5 })],
+  },
 };
 
-export const FeedEdit: FC<FeedEditProps> = (props) => {
+/* ---------------- Component ---------------- */
+
+export const FeedEdit: FC<FeedEditProps> = ({
+  editing,
+  selectedPost,
+  loading,
+  onCancelEdit,
+  onFinishEdit,
+}) => {
   const [postForm, setPostForm] = useState<PostForm>(POST_FORM);
   const [formIsValid, setFormIsValid] = useState<boolean>(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  const prevEditingRef = useRef<boolean>(props.editing);
-  const prevSelectedPostRef = useRef<SelectedPost | null | undefined>(props.selectedPost);
+  const prevEditingRef = useRef<boolean>(editing);
+  const prevSelectedPostRef = useRef<SelectedPost | null | undefined>(
+    selectedPost
+  );
 
+  /* ---------- Sync edit state ---------- */
   useEffect(() => {
     const prevEditing = prevEditingRef.current;
     const prevSelectedPost = prevSelectedPostRef.current;
 
     if (
-      props.editing &&
-      prevEditing !== props.editing &&
-      prevSelectedPost !== props.selectedPost &&
-      props.selectedPost
+      editing &&
+      prevEditing !== editing &&
+      prevSelectedPost !== selectedPost &&
+      selectedPost
     ) {
       setPostForm((prev) => ({
-        title: { ...prev.title, value: props.selectedPost!.title, valid: true },
-        image: { ...prev.image, value: props.selectedPost!.imagePath, valid: true },
-        content: { ...prev.content, value: props.selectedPost!.content, valid: true }
+        title: { ...prev.title, value: selectedPost.title, valid: true },
+        image: { ...prev.image, value: selectedPost.imagePath, valid: true },
+        content: { ...prev.content, value: selectedPost.content, valid: true },
       }));
       setFormIsValid(true);
     }
 
-    prevEditingRef.current = props.editing;
-    prevSelectedPostRef.current = props.selectedPost;
-  }, [props.editing, props.selectedPost]);
+    prevEditingRef.current = editing;
+    prevSelectedPostRef.current = selectedPost;
+  }, [editing, selectedPost]);
 
+  /* ---------- Input handler ---------- */
   const postInputChangeHandler = (
-    input: keyof PostForm,
+    id: string,
     value: string,
     files?: FileList | null
-  ) => {
+  ): void => {
+    const input = id as keyof PostForm;
+
     if (files && files.length > 0) {
       generateBase64FromImage(files[0])
-        .then((b64: string) => {
-          setImagePreview(b64);
-        })
-        .catch(() => {
-          setImagePreview(null);
-        });
+        .then((b64: string) => setImagePreview(b64))
+        .catch(() => setImagePreview(null));
     }
 
     setPostForm((prevState) => {
       let isValid = true;
+
       for (const validator of prevState[input].validators) {
-        isValid = isValid && Boolean(validator(value));
+        const val = files?.[0] ?? value;
+        isValid = isValid && validator(val as never);
       }
+
       const updatedForm: PostForm = {
         ...prevState,
         [input]: {
           ...prevState[input],
           valid: isValid,
-          value: files && files.length > 0 ? files[0] : value
-        }
+          value: files && files.length > 0 ? files[0] : value,
+        },
       };
 
       let overallValid = true;
-      for (const inputName in updatedForm) {
-        if (Object.prototype.hasOwnProperty.call(updatedForm, inputName)) {
-          overallValid = overallValid && (updatedForm as any)[inputName].valid;
-        }
-      }
+      (Object.keys(updatedForm) as (keyof PostForm)[]).forEach((key) => {
+        overallValid = overallValid && updatedForm[key].valid;
+      });
 
       setFormIsValid(overallValid);
       return updatedForm;
     });
   };
 
-  const inputBlurHandler = (input: keyof PostForm) => {
+  /* ---------- Blur handler ---------- */
+  const inputBlurHandler = (input: keyof PostForm): void => {
     setPostForm((prevState) => ({
       ...prevState,
       [input]: {
         ...prevState[input],
-        touched: true
-      }
+        touched: true,
+      },
     }));
   };
 
-  const cancelPostChangeHandler = () => {
+  /* ---------- Cancel ---------- */
+  const cancelPostChangeHandler = (): void => {
     setPostForm(POST_FORM);
     setFormIsValid(false);
-    props.onCancelEdit();
+    setImagePreview(null);
+    onCancelEdit();
   };
 
-  const acceptPostChangeHandler = () => {
+  /* ---------- Accept ---------- */
+  const acceptPostChangeHandler = (): void => {
     const post = {
       title: postForm.title.value,
       image: postForm.image.value,
-      content: postForm.content.value
+      content: postForm.content.value,
     };
-    props.onFinishEdit(post);
+
+    onFinishEdit(post);
     setPostForm(POST_FORM);
     setFormIsValid(false);
     setImagePreview(null);
   };
 
-  return props.editing ? (
+  /* ---------- Render ---------- */
+  return editing ? (
     <Fragment>
       <Backdrop onClick={cancelPostChangeHandler} />
       <Modal
@@ -164,7 +187,7 @@ export const FeedEdit: FC<FeedEditProps> = (props) => {
         acceptEnabled={formIsValid}
         onCancelModal={cancelPostChangeHandler}
         onAcceptModal={acceptPostChangeHandler}
-        isLoading={Boolean(props.loading)}
+        isLoading={Boolean(loading)}
       >
         <form>
           <Input
@@ -172,33 +195,36 @@ export const FeedEdit: FC<FeedEditProps> = (props) => {
             label="Title"
             control="input"
             onChange={postInputChangeHandler}
-            onBlur={() => inputBlurHandler('title')}
-            valid={postForm['title'].valid}
-            touched={postForm['title'].touched}
-            value={postForm['title'].value}
+            onBlur={() => inputBlurHandler("title")}
+            valid={postForm.title.valid}
+            touched={postForm.title.touched}
+            value={postForm.title.value}
           />
+
           <FilePicker
             id="image"
             label="Image"
             onChange={postInputChangeHandler}
-            onBlur={() => inputBlurHandler('image')}
-            valid={postForm['image'].valid}
-            touched={postForm['image'].touched}
+            onBlur={() => inputBlurHandler("image")}
+            valid={postForm.image.valid}
+            touched={postForm.image.touched}
           />
+
           <div className="new-post__preview-image">
             {!imagePreview && <p>Please choose an image.</p>}
             {imagePreview && <Image imageUrl={imagePreview} contain left />}
           </div>
+
           <Input
             id="content"
             label="Content"
             control="textarea"
             rows={5}
             onChange={postInputChangeHandler}
-            onBlur={() => inputBlurHandler('content')}
-            valid={postForm['content'].valid}
-            touched={postForm['content'].touched}
-            value={postForm['content'].value}
+            onBlur={() => inputBlurHandler("content")}
+            valid={postForm.content.valid}
+            touched={postForm.content.touched}
+            value={postForm.content.value}
           />
         </form>
       </Modal>

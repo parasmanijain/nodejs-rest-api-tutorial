@@ -11,22 +11,22 @@ export interface PostProps {
   onDelete: () => void;
 }
 
-export const Post: FC<PostProps> = (props) => (
+export const Post: FC<PostProps> = ({ id, author, date, title, onDelete, onStartEdit }) => (
   <article className={classes["post"]}>
     <header className={classes["post__header"]}>
       <h3 className={classes["post__meta"]}>
-        Posted by {props.author} on {props.date}
+        Posted by {author} on {date}
       </h3>
-      <h1 className={classes["post__title"]}>{props.title}</h1>
+      <h1 className={classes["post__title"]}>{title}</h1>
     </header>
     <div className={classes["post__actions"]}>
-      <Button mode="flat" link={props.id}>
+      <Button mode="flat" link={id}>
         View
       </Button>
-      <Button mode="flat" onClick={props.onStartEdit}>
+      <Button mode="flat" onClick={onStartEdit}>
         Edit
       </Button>
-      <Button mode="flat" design="danger" onClick={props.onDelete}>
+      <Button mode="flat" design="danger" onClick={onDelete}>
         Delete
       </Button>
     </div>

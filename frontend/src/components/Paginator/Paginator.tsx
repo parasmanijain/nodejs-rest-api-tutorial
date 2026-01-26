@@ -9,22 +9,22 @@ export interface PaginatorProps {
   onNext: () => void;
 }
 
-export const Paginator: FC<PaginatorProps> = (props) => (
+export const Paginator: FC<PaginatorProps> = ({ children, currentPage, lastPage, onPrevious, onNext }) => (
   <div className={classes["paginator"]}>
-    {props.children}
+    {children}
     <div className={classes["paginator__controls"]}>
-      {props.currentPage > 1 && (
+      {currentPage > 1 && (
         <button
           className={classes["paginator__control"]}
-          onClick={props.onPrevious}
+          onClick={onPrevious}
         >
           Previous
         </button>
       )}
-      {props.currentPage < props.lastPage && (
+      {currentPage < lastPage && (
         <button
           className={classes["paginator__control"]}
-          onClick={props.onNext}
+          onClick={onNext}
         >
           Next
         </button>
