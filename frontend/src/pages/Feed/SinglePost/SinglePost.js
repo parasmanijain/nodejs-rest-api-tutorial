@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-
+import { useParams } from 'react-router-dom';
 import Image from '../../../components/Image/Image';
 import './SinglePost.css';
 
@@ -9,9 +9,8 @@ const SinglePost = (props) => {
   const [date, setDate] = useState('');
   const [image, setImage] = useState('');
   const [content, setContent] = useState('');
-
+  const { postId } = useParams();
   useEffect(() => {
-    const postId = props.match.params.postId;
     fetch('http://localhost:8080/feed/post/' + postId)
       .then(res => {
         if (res.status !== 200) {
@@ -29,7 +28,7 @@ const SinglePost = (props) => {
       .catch(err => {
         console.log(err);
       });
-  }, [props.match.params.postId]);
+  }, [postId]);
 
   return (
     <section className="single-post">

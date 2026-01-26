@@ -1,15 +1,12 @@
-const path = require('path');
-
-const express = require('express');
-const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
-const multer = require('multer');
-
-const feedRoutes = require('./routes/feed');
+import { join } from 'path';
+import express, { json, static as express_static,json } from 'express';
+import { connect } from 'mongoose';
+import multer, { diskStorage } from 'multer';
+import feedRoutes from './routes/feed';
 
 const app = express();
 
-const fileStorage = multer.diskStorage({
+const fileStorage = diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'images');
   },
@@ -31,11 +28,11 @@ const fileFilter = (req, file, cb) => {
 };
 
 // app.use(bodyParser.urlencoded()); // x-www-form-urlencoded <form>
-app.use(bodyParser.json()); // application/json
+app.use(json()); // application/json
 app.use(
   multer({ storage: fileStorage, fileFilter: fileFilter }).single('image')
 );
-app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use('/images', express_static(join(__dirname, 'images')));
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -56,8 +53,7 @@ app.use((error, req, res, next) => {
   res.status(status).json({ message: message });
 });
 
-mongoose
-  .connect(
+connect(
     'mongodb+srv://maximilian:9u4biljMQc4jjqbe@cluster0-ntrwp.mongodb.net/messages?retryWrites=true'
   )
   .then(result => {
