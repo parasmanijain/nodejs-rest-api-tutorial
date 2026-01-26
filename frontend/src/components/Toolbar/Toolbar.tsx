@@ -1,11 +1,5 @@
+import classes from "./Toolbar.module.scss";
 
-
-import './Toolbar.scss';
-
-const toolbar = props => (
-    <div className="toolbar">
-       {props.children}
-    </div>
+export const Toolbar = (props) => (
+    <div className={classes["toolbar"]}>{props.children}</div>
 );
-
-export default toolbar;

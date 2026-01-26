@@ -1,11 +1,9 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
-
-import MobileToggle from '../MobileToggle/MobileToggle';
-import Logo from '../../Logo/Logo';
-import NavigationItems from '../NavigationItems/NavigationItems';
-
-import './MainNavigation.scss';
+import { FC } from "react";
+import { NavLink } from "react-router-dom";
+import { MobileToggle } from "../MobileToggle/MobileToggle";
+import { Logo } from "../../Logo/Logo";
+import { NavigationItems } from "../NavigationItems/NavigationItems";
+import classes from "./MainNavigation.module.scss";
 
 export interface MainNavigationProps {
   isAuth: boolean;
@@ -13,19 +11,17 @@ export interface MainNavigationProps {
   onOpenMobileNav: () => void;
 }
 
-const MainNavigation: React.FC<MainNavigationProps> = (props) => (
-  <nav className="main-nav">
+export const MainNavigation: FC<MainNavigationProps> = (props) => (
+  <nav className={classes["main-nav"]}>
     <MobileToggle onOpen={props.onOpenMobileNav} />
-    <div className="main-nav__logo">
+    <div className={classes["main-nav__logo"]}>
       <NavLink to="/">
         <Logo />
       </NavLink>
     </div>
-    <div className="spacer" />
-    <ul className="main-nav__items">
+    <div className={classes["spacer"]} />
+    <ul className={classes["main-nav__items"]}>
       <NavigationItems isAuth={props.isAuth} onLogout={props.onLogout} />
     </ul>
   </nav>
 );
-
-export default MainNavigation;

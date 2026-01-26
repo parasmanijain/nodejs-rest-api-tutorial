@@ -1,27 +1,27 @@
-import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
+import { FC, FormEvent, Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import Layout from './components/Layout/Layout';
-import Backdrop from './components/Backdrop/Backdrop';
-import Toolbar from './components/Toolbar/Toolbar';
-import MainNavigation from './components/Navigation/MainNavigation/MainNavigation';
-import MobileNavigation from './components/Navigation/MobileNavigation/MobileNavigation';
-import ErrorHandler from './components/ErrorHandler/ErrorHandler';
-import FeedPage from './pages/Feed/Feed';
-import SinglePostPage from './pages/Feed/SinglePost/SinglePost';
-import LoginPage from './pages/Auth/Login';
-import SignupPage from './pages/Auth/Signup';
+import { Layout } from './components/Layout/Layout';
+import { Backdrop } from './components/Backdrop/Backdrop';
+import { Toolbar } from './components/Toolbar/Toolbar';
+import { MainNavigation } from './components/Navigation/MainNavigation/MainNavigation';
+import { MobileNavigation } from './components/Navigation/MobileNavigation/MobileNavigation';
+import { ErrorHandler, ErrorLike } from './components/ErrorHandler/ErrorHandler';
+import { Feed } from './pages/Feed/Feed';
+import { SinglePost } from './pages/Feed/SinglePost/SinglePost';
+import { Login } from './pages/Auth/Login';
+import { Signup } from './pages/Auth/Signup';
 import './App.scss';
 
-const App = () => {
-  const [showBackdrop, setShowBackdrop] = useState(false);
-  const [showMobileNav, setShowMobileNav] = useState(false);
-  const [isAuth, setIsAuth] = useState(true);
-  const [token, setToken] = useState(null);
-  const [userId, setUserId] = useState(null);
-  const [authLoading, setAuthLoading] = useState(false);
-  const [error, setError] = useState(null);
+export const App: FC = () => {
+  const [showBackdrop, setShowBackdrop] = useState<boolean>(false);
+  const [showMobileNav, setShowMobileNav] = useState<boolean>(false);
+  const [isAuth, setIsAuth] = useState<boolean>(true);
+  const [token, setToken] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [authLoading, setAuthLoading] = useState<boolean>(false);
+  const [error, setError] = useState<ErrorLike | null>(null);
 
-  const logoutTimer = useRef(null);
+  const logoutTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navigate = useNavigate();
 
   const logoutHandler = useCallback(() => {
@@ -69,7 +69,7 @@ const App = () => {
     };
   }, [logoutHandler, setAutoLogout]);
 
-  const mobileNavHandler = (isOpen) => {
+  const mobileNavHandler = (isOpen: boolean) => {
     setShowMobileNav(isOpen);
     setShowBackdrop(isOpen);
   };
@@ -80,7 +80,10 @@ const App = () => {
     setError(null);
   };
 
-  const loginHandler = (event, authData) => {
+  const loginHandler = (
+    event: FormEvent<HTMLFormElement>,
+    _authData: { email: string; password: string }
+  ) => {
     event.preventDefault();
     setAuthLoading(true);
     fetch('URL')
@@ -93,7 +96,7 @@ const App = () => {
         }
         return res.json();
       })
-      .then((resData) => {
+      .then((resData: { token: string; userId: string }) => {
         setIsAuth(true);
         setToken(resData.token);
         setAuthLoading(false);
@@ -107,15 +110,30 @@ const App = () => {
         localStorage.setItem('expiryDate', expiryDate.toISOString());
         setAutoLogout(remainingMilliseconds);
       })
-      .catch((err) => {
+      .catch((err: unknown) => {
         console.log(err);
         setIsAuth(false);
         setAuthLoading(false);
-        setError(err);
+        setError({ message: err instanceof Error ? err.message : String(err) });
       });
   };
 
-  const signupHandler = (event, authData) => {
+  interface Field<T = string> {
+    value: T;
+    valid: boolean;
+    touched: boolean;
+    validators: ((value: unknown) => boolean)[];
+  }
+  interface SignupForm {
+    email: Field<string>;
+    password: Field<string>;
+    name: Field<string>;
+  }
+
+  const signupHandler = (
+    event: FormEvent<HTMLFormElement>,
+    _payload: { signupForm: SignupForm; formIsValid: boolean }
+  ) => {
     event.preventDefault();
     setAuthLoading(true);
     fetch('URL')
@@ -133,14 +151,13 @@ const App = () => {
       .then(() => {
         setIsAuth(false);
         setAuthLoading(false);
-        // Replace history.replace('/') with navigate('/', { replace: true }) in v6
         navigate('/', { replace: true });
       })
-      .catch((err) => {
+      .catch((err: unknown) => {
         console.log(err);
         setIsAuth(false);
         setAuthLoading(false);
-        setError(err);
+        setError({ message: err instanceof Error ? err.message : String(err) });
       });
   };
 
@@ -152,11 +169,11 @@ const App = () => {
     <Routes>
       <Route
         path="/"
-        element={<LoginPage onLogin={loginHandler} loading={authLoading} />}
+        element={<Login onLogin={loginHandler} loading={authLoading} />}
       />
       <Route
         path="/signup"
-        element={<SignupPage onSignup={signupHandler} loading={authLoading} />}
+        element={<Signup onSignup={signupHandler} loading={authLoading} />}
       />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
@@ -167,11 +184,11 @@ const App = () => {
       <Routes>
         <Route
           path="/"
-          element={<FeedPage userId={userId} token={token} />}
+          element={<Feed userId={userId} token={token} />}
         />
         <Route
           path="/:postId"
-          element={<SinglePostPage userId={userId} token={token} />}
+          element={<SinglePost userId={userId} token={token} />}
         />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
@@ -206,5 +223,3 @@ const App = () => {
     </Fragment>
   );
 };
-
-export default App;

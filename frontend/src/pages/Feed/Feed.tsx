@@ -1,23 +1,41 @@
-import { Fragment, useEffect, useState } from 'react';
-import Post from '../../components/Feed/Post/Post';
-import Button from '../../components/Button/Button';
-import FeedEdit from '../../components/Feed/FeedEdit/FeedEdit';
-import Input from '../../components/Form/Input/Input';
-import Paginator from '../../components/Paginator/Paginator';
-import Loader from '../../components/Loader/Loader';
-import ErrorHandler from '../../components/ErrorHandler/ErrorHandler';
-import './Feed.scss';
+import { FC, FormEvent, Fragment, useEffect, useState } from 'react';
+import { Post } from '../../components/Feed/Post/Post';
+import { Button } from '../../components/Button/Button';
+import { FeedEdit } from '../../components/Feed/FeedEdit/FeedEdit';
+import { Input } from '../../components/Form/Input/Input';
+import { Paginator } from '../../components/Paginator/Paginator';
+import { Loader } from '../../components/Loader/Loader';
+import { ErrorHandler, ErrorLike } from '../../components/ErrorHandler/ErrorHandler';
+import classes from './Feed.module.scss';
 
-const Feed = (props) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [posts, setPosts] = useState([]);
-  const [totalPosts, setTotalPosts] = useState(0);
-  const [editPost, setEditPost] = useState(null);
-  const [status, setStatus] = useState('');
-  const [postPage, setPostPage] = useState(1);
-  const [postsLoading, setPostsLoading] = useState(true);
-  const [editLoading, setEditLoading] = useState(false);
-  const [error, setError] = useState(null);
+export interface FeedProps {
+  userId: string | null;
+  token: string | null;
+}
+
+interface Creator {
+  name: string;
+}
+
+export interface FeedPost {
+  _id: string;
+  title: string;
+  content: string;
+  creator: Creator;
+  createdAt: string;
+  imageUrl?: string;
+}
+
+export const Feed: FC<FeedProps> = () => {
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [posts, setPosts] = useState<FeedPost[]>([]);
+  const [totalPosts, setTotalPosts] = useState<number>(0);
+  const [editPost, setEditPost] = useState<FeedPost | null>(null);
+  const [status, setStatus] = useState<string>('');
+  const [postPage, setPostPage] = useState<number>(1);
+  const [postsLoading, setPostsLoading] = useState<boolean>(true);
+  const [editLoading, setEditLoading] = useState<boolean>(false);
+  const [error, setError] = useState<ErrorLike | null>(null);
 
   useEffect(() => {
     fetch('URL')
@@ -27,7 +45,7 @@ const Feed = (props) => {
         }
         return res.json();
       })
-      .then(resData => {
+      .then((resData: { status: string }) => {
         setStatus(resData.status);
       })
       .catch(catchError);
@@ -36,7 +54,7 @@ const Feed = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const loadPosts = (direction) => {
+  const loadPosts = (direction?: 'next' | 'previous') => {
     if (direction) {
       setPostsLoading(true);
       setPosts([]);
@@ -57,7 +75,7 @@ const Feed = (props) => {
         }
         return res.json();
       })
-      .then(resData => {
+      .then((resData: { posts: FeedPost[]; totalItems: number }) => {
         setPosts(resData.posts);
         setTotalPosts(resData.totalItems);
         setPostsLoading(false);
@@ -65,7 +83,7 @@ const Feed = (props) => {
       .catch(catchError);
   };
 
-  const statusUpdateHandler = event => {
+  const statusUpdateHandler = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     fetch('URL')
       .then(res => {
@@ -84,8 +102,8 @@ const Feed = (props) => {
     setIsEditing(true);
   };
 
-  const startEditPostHandler = postId => {
-    const loadedPost = { ...posts.find(p => p._id === postId) };
+  const startEditPostHandler = (postId: string) => {
+    const loadedPost = { ...posts.find(p => p._id === postId)! };
     setIsEditing(true);
     setEditPost(loadedPost);
   };
@@ -95,20 +113,21 @@ const Feed = (props) => {
     setEditPost(null);
   };
 
-  const finishEditHandler = postData => {
+  const finishEditHandler = (postData: { title: string; content: string; image: File | string }) => {
     setEditLoading(true);
     const formData = new FormData();
     formData.append('title', postData.title);
     formData.append('content', postData.content);
     formData.append('image', postData.image);
     let url = 'http://localhost:8080/feed/post';
-    let method = 'POST';
+    let method: 'POST' | 'PUT' = 'POST';
     if (editPost) {
       url = 'URL';
+      method = 'PUT';
     }
 
     fetch(url, {
-      method: method,
+      method,
       body: formData
     })
       .then(res => {
@@ -117,9 +136,16 @@ const Feed = (props) => {
         }
         return res.json();
       })
-      .then(resData => {
-        console.log(resData);
-        const post = {
+      .then((resData: {
+        post: {
+          _id: string;
+          title: string;
+          content: string;
+          creator: Creator;
+          createdAt: string;
+        };
+      }) => {
+        const post: FeedPost = {
           _id: resData.post._id,
           title: resData.post.title,
           content: resData.post.content,
@@ -142,20 +168,20 @@ const Feed = (props) => {
         setEditPost(null);
         setEditLoading(false);
       })
-      .catch(err => {
+      .catch((err: unknown) => {
         console.log(err);
         setIsEditing(false);
         setEditPost(null);
         setEditLoading(false);
-        setError(err);
+        setError({ message: err instanceof Error ? err.message : String(err) });
       });
   };
 
-  const statusInputChangeHandler = (input, value) => {
+  const statusInputChangeHandler = (_input: string, value: string, _files?: FileList | null) => {
     setStatus(value);
   };
 
-  const deletePostHandler = postId => {
+  const deletePostHandler = (postId: string) => {
     setPostsLoading(true);
     fetch('URL')
       .then(res => {
@@ -169,7 +195,7 @@ const Feed = (props) => {
         setPosts(prev => prev.filter(p => p._id !== postId));
         setPostsLoading(false);
       })
-      .catch(err => {
+      .catch((err: unknown) => {
         console.log(err);
         setPostsLoading(false);
       });
@@ -179,8 +205,8 @@ const Feed = (props) => {
     setError(null);
   };
 
-  const catchError = error => {
-    setError(error);
+  const catchError = (err: unknown) => {
+    setError({ message: err instanceof Error ? err.message : String(err) });
   };
 
   return (
@@ -188,31 +214,38 @@ const Feed = (props) => {
       <ErrorHandler error={error} onHandle={errorHandler} />
       <FeedEdit
         editing={isEditing}
-        selectedPost={editPost}
+        selectedPost={
+          editPost
+            ? { title: editPost.title, imagePath: editPost.imageUrl || '', content: editPost.content }
+            : null
+        }
         loading={editLoading}
         onCancelEdit={cancelEditHandler}
         onFinishEdit={finishEditHandler}
       />
-      <section className="feed__status">
+      <section className={classes["feed__status"]}>
         <form onSubmit={statusUpdateHandler}>
           <Input
+            id="status"
             type="text"
             placeholder="Your status"
             control="input"
             onChange={statusInputChangeHandler}
             value={status}
+            valid={true}
+            touched={true}
           />
           <Button mode="flat" type="submit">
             Update
           </Button>
         </form>
       </section>
-      <section className="feed__control">
+      <section className={classes["feed__control"]}>
         <Button mode="raised" design="accent" onClick={newPostHandler}>
           New Post
         </Button>
       </section>
-      <section className="feed">
+      <section className={classes["feed"]}>
         {postsLoading && (
           <div style={{ textAlign: 'center', marginTop: '2rem' }}>
             <Loader />
@@ -235,8 +268,6 @@ const Feed = (props) => {
                 author={post.creator.name}
                 date={new Date(post.createdAt).toLocaleDateString('en-US')}
                 title={post.title}
-                image={post.imageUrl}
-                content={post.content}
                 onStartEdit={() => startEditPostHandler(post._id)}
                 onDelete={() => deletePostHandler(post._id)}
               />
@@ -247,5 +278,3 @@ const Feed = (props) => {
     </Fragment>
   );
 };
-
-export default Feed;

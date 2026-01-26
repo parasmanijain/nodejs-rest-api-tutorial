@@ -1,23 +1,25 @@
+import classes from "./Paginator.module.scss";
 
-
-import './Paginator.scss';
-
-const paginator = props => (
-  <div className="paginator">
+export const Paginator = (props) => (
+  <div className={classes["paginator"]}>
     {props.children}
-    <div className="paginator__controls">
+    <div className={classes["paginator__controls"]}>
       {props.currentPage > 1 && (
-        <button className="paginator__control" onClick={props.onPrevious}>
+        <button
+          className={classes["paginator__control"]}
+          onClick={props.onPrevious}
+        >
           Previous
         </button>
       )}
       {props.currentPage < props.lastPage && (
-        <button className="paginator__control" onClick={props.onNext}>
+        <button
+          className={classes["paginator__control"]}
+          onClick={props.onNext}
+        >
           Next
         </button>
       )}
     </div>
   </div>
 );
-
-export default paginator;

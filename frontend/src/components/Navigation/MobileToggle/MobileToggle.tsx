@@ -1,16 +1,14 @@
-import React from 'react';
-import './MobileToggle.scss';
+import { FC } from "react";
+import classes from "./MobileToggle.module.scss";
 
 export interface MobileToggleProps {
   onOpen: () => void;
 }
 
-const MobileToggle: React.FC<MobileToggleProps> = (props) => (
-  <button className="mobile-toggle" onClick={props.onOpen}>
-    <span className="mobile-toggle__bar" />
-    <span className="mobile-toggle__bar" />
-    <span className="mobile-toggle__bar" />
+export const MobileToggle: FC<MobileToggleProps> = (props) => (
+  <button className={classes["mobile-toggle"]} onClick={props.onOpen}>
+    <span className={classes["mobile-toggle__bar"]} />
+    <span className={classes["mobile-toggle__bar"]} />
+    <span className={classes["mobile-toggle__bar"]} />
   </button>
 );
-
-export default MobileToggle;

@@ -1,6 +1,6 @@
-import React from 'react';
-import NavigationItems from '../NavigationItems/NavigationItems';
-import './MobileNavigation.scss';
+import { FC } from "react";
+import { NavigationItems } from "../NavigationItems/NavigationItems";
+import classes from "./MobileNavigation.module.scss";
 
 export interface MobileNavigationProps {
   open?: boolean;
@@ -10,19 +10,30 @@ export interface MobileNavigationProps {
   onLogout: () => void;
 }
 
-const MobileNavigation: React.FC<MobileNavigationProps> = (props) => (
-  <nav className={['mobile-nav', props.open ? 'open' : ''].join(' ')}>
-    <ul
-      className={['mobile-nav__items', props.mobile ? 'mobile' : ''].join(' ')}
-    >
-      <NavigationItems
-        mobile
-        onChoose={props.onChooseItem}
-        isAuth={props.isAuth}
-        onLogout={props.onLogout}
-      />
-    </ul>
-  </nav>
-);
+export const MobileNavigation: FC<MobileNavigationProps> = (props) => {
+  const navClassName = [
+    classes["mobile-nav"],
+    props.open ? classes["open"] : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
-export default MobileNavigation;
+  const listClassName = [
+    classes["mobile-nav__items"],
+    props.mobile ? classes["mobile"] : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+  return (
+    <nav className={navClassName}>
+      <ul className={listClassName}>
+        <NavigationItems
+          mobile
+          onChoose={props.onChooseItem}
+          isAuth={props.isAuth}
+          onLogout={props.onLogout}
+        />
+      </ul>
+    </nav>
+  );
+};

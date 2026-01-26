@@ -1,14 +1,13 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
-
-import './NavigationItems.scss';
+import { FC, ReactNode } from "react";
+import { NavLink } from "react-router-dom";
+import classes from "./NavigationItems.module.scss";
 
 type NavItem = { id: string; text: string; link: string; auth: boolean };
 
 const navItems: NavItem[] = [
-  { id: 'feed', text: 'Feed', link: '/', auth: true },
-  { id: 'login', text: 'Login', link: '/', auth: false },
-  { id: 'signup', text: 'Signup', link: '/signup', auth: false }
+  { id: "feed", text: "Feed", link: "/", auth: true },
+  { id: "login", text: "Login", link: "/", auth: false },
+  { id: "signup", text: "Signup", link: "/signup", auth: false },
 ];
 
 export interface NavigationItemsProps {
@@ -18,14 +17,20 @@ export interface NavigationItemsProps {
   onLogout: () => void;
 }
 
-const NavigationItems: React.FC<NavigationItemsProps> = (props) => {
+export const NavigationItems: FC<NavigationItemsProps> = (props) => {
+  const liClassName = [
+    classes['navigation-item'],
+    props.mobile ? classes['mobile'] : ''
+  ]
+    .filter(Boolean)
+    .join(' ');
   const items = [
     ...navItems
       .filter((item) => item.auth === props.isAuth)
       .map((item) => (
         <li
           key={item.id}
-          className={['navigation-item', props.mobile ? 'mobile' : ''].join(' ')}
+          className={liClassName}
         >
           <NavLink to={item.link} onClick={props.onChoose}>
             {item.text}
@@ -33,13 +38,11 @@ const NavigationItems: React.FC<NavigationItemsProps> = (props) => {
         </li>
       )),
     props.isAuth && (
-      <li className="navigation-item" key="logout">
+      <li className={classes["navigation-item"]} key="logout">
         <button onClick={props.onLogout}>Logout</button>
       </li>
-    )
-  ].filter(Boolean) as JSX.Element[];
+    ),
+  ].filter(Boolean) as ReactNode[];
 
   return <>{items}</>;
 };
-
-export default NavigationItems;

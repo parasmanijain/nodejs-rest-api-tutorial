@@ -1,7 +1,6 @@
-import React, { Fragment } from 'react';
-
-import Backdrop from '../Backdrop/Backdrop';
-import Modal from '../Modal/Modal';
+import { FC, Fragment } from "react";
+import { Backdrop } from "../Backdrop/Backdrop";
+import { Modal } from "../Modal/Modal";
 
 export interface ErrorLike {
   message: string;
@@ -12,7 +11,7 @@ export interface ErrorHandlerProps {
   onHandle: () => void;
 }
 
-const ErrorHandler: React.FC<ErrorHandlerProps> = (props) => (
+export const ErrorHandler: FC<ErrorHandlerProps> = (props) => (
   <Fragment>
     {props.error && <Backdrop onClick={props.onHandle} />}
     {props.error && (
@@ -27,5 +26,3 @@ const ErrorHandler: React.FC<ErrorHandlerProps> = (props) => (
     )}
   </Fragment>
 );
-
-export default ErrorHandler;

@@ -1,18 +1,16 @@
-import React, { Fragment } from 'react';
-import './Layout.scss';
+import { FC, Fragment, ReactNode } from "react";
+import classes from "./Layout.module.scss";
 
 export interface LayoutProps {
-  header?: React.ReactNode;
-  mobileNav?: React.ReactNode;
-  children?: React.ReactNode;
+  header?: ReactNode;
+  mobileNav?: ReactNode;
+  children?: ReactNode;
 }
 
-const Layout: React.FC<LayoutProps> = (props) => (
+export const Layout: FC<LayoutProps> = (props) => (
   <Fragment>
-    <header className="main-header">{props.header}</header>
+    <header className={classes["main-header"]}>{props.header}</header>
     {props.mobileNav}
-    <main className="content">{props.children}</main>
+    <main className={classes["content"]}>{props.children}</main>
   </Fragment>
 );
-
-export default Layout;

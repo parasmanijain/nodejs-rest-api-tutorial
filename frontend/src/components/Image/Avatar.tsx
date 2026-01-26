@@ -1,19 +1,17 @@
-import React from 'react';
-import Image from './Image';
-import './Avatar.scss';
+import { FC } from "react";
+import { Image } from "./Image";
+import classes from "./Avatar.module.scss";
 
 export interface AvatarProps {
   image: string;
   size: number; // in rem
 }
 
-const Avatar: React.FC<AvatarProps> = (props) => (
+export const Avatar: FC<AvatarProps> = (props) => (
   <div
-    className="avatar"
-    style={{ width: props.size + 'rem', height: props.size + 'rem' }}
+    className={classes["avatar"]}
+    style={{ width: props.size + "rem", height: props.size + "rem" }}
   >
     <Image imageUrl={props.image} />
   </div>
 );
-
-export default Avatar;

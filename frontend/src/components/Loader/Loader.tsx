@@ -1,13 +1,12 @@
-import React from 'react';
-import './Loader.scss';
 
-const Loader: React.FC = () => (
-  <div className="loader">
+import { FC } from 'react';
+import classes from './Loader.module.scss';
+
+export const Loader: FC = () => (
+  <div className={classes["loader"]}>
     <div />
     <div />
     <div />
     <div />
   </div>
 );
-
-export default Loader;

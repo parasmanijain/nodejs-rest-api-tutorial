@@ -1,5 +1,5 @@
-import React from 'react';
-import './Image.scss';
+import { FC } from "react";
+import classes from "./Image.module.scss";
 
 export interface ImageProps {
   imageUrl: string;
@@ -7,15 +7,13 @@ export interface ImageProps {
   left?: boolean;
 }
 
-const Image: React.FC<ImageProps> = (props) => (
+export const Image: FC<ImageProps> = (props) => (
   <div
-    className="image"
+    className={classes["image"]}
     style={{
       backgroundImage: `url('${props.imageUrl}')`,
-      backgroundSize: props.contain ? 'contain' : 'cover',
-      backgroundPosition: props.left ? 'left' : 'center'
+      backgroundSize: props.contain ? "contain" : "cover",
+      backgroundPosition: props.left ? "left" : "center",
     }}
   />
 );
-
-export default Image;

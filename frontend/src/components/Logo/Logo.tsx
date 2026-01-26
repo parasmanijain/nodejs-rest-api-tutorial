@@ -1,6 +1,4 @@
-import React from 'react';
-import './Logo.scss';
+import { FC } from "react";
+import classes from "./Logo.module.scss";
 
-const Logo: React.FC = () => <h1 className="logo">MessageNode</h1>;
-
-export default Logo;
+export const Logo: FC = () => <h1 className={classes["logo"]}>MessageNode</h1>;

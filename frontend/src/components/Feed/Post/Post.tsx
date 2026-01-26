@@ -1,6 +1,6 @@
-import React from 'react';
-import Button from '../../Button/Button';
-import './Post.scss';
+import { FC } from "react";
+import { Button } from "../../Button/Button";
+import classes from "./Post.module.scss";
 
 export interface PostProps {
   id: string;
@@ -11,19 +11,15 @@ export interface PostProps {
   onDelete: () => void;
 }
 
-const Post: React.FC<PostProps> = (props) => (
-  <article className="post">
-    <header className="post__header">
-      <h3 className="post__meta">
+export const Post: FC<PostProps> = (props) => (
+  <article className={classes["post"]}>
+    <header className={classes["post__header"]}>
+      <h3 className={classes["post__meta"]}>
         Posted by {props.author} on {props.date}
       </h3>
-      <h1 className="post__title">{props.title}</h1>
+      <h1 className={classes["post__title"]}>{props.title}</h1>
     </header>
-    {/* <div className="post__image">
-      <Image imageUrl={props.image} contain />
-    </div>
-    <div className="post__content">{props.content}</div> */}
-    <div className="post__actions">
+    <div className={classes["post__actions"]}>
       <Button mode="flat" link={props.id}>
         View
       </Button>
@@ -36,5 +32,3 @@ const Post: React.FC<PostProps> = (props) => (
     </div>
   </article>
 );
-
-export default Post;

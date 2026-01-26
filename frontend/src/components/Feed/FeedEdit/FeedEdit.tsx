@@ -1,9 +1,9 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
-import Backdrop from '../../Backdrop/Backdrop';
-import Modal from '../../Modal/Modal';
-import Input from '../../Form/Input/Input';
-import FilePicker from '../../Form/Input/FilePicker';
-import Image from '../../Image/Image';
+import { FC, Fragment, useEffect, useRef, useState } from 'react';
+import { Backdrop } from '../../Backdrop/Backdrop';
+import { Modal } from '../../Modal/Modal';
+import { Input } from '../../Form/Input/Input';
+import { FilePicker } from '../../Form/Input/FilePicker';
+import { Image } from '../../Image/Image';
 import { required, length } from '../../../util/validators';
 import { generateBase64FromImage } from '../../../util/image';
 
@@ -57,7 +57,7 @@ const POST_FORM: PostForm = {
   }
 };
 
-const FeedEdit: React.FC<FeedEditProps> = (props) => {
+export const FeedEdit: FC<FeedEditProps> = (props) => {
   const [postForm, setPostForm] = useState<PostForm>(POST_FORM);
   const [formIsValid, setFormIsValid] = useState<boolean>(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -205,5 +205,3 @@ const FeedEdit: React.FC<FeedEditProps> = (props) => {
     </Fragment>
   ) : null;
 };
-
-export default FeedEdit;

@@ -1,22 +1,23 @@
-import React from 'react';
-import { createPortal } from 'react-dom';
-import './Backdrop.scss';
+import { FC, MouseEventHandler } from "react";
+import { createPortal } from "react-dom";
+import classes from "./Backdrop.module.scss";
 
 export interface BackdropProps {
   open?: boolean;
-  onClick?: React.MouseEventHandler<HTMLDivElement>;
+  onClick?: MouseEventHandler<HTMLDivElement>;
 }
 
-const Backdrop: React.FC<BackdropProps> = ({ open, onClick }) => {
-  const root = document.getElementById('backdrop-root');
+export const Backdrop: FC<BackdropProps> = ({ open, onClick }) => {
+  const root = document.getElementById("backdrop-root");
   if (!root) return null;
+  const className = [classes['backdrop'], open ? classes['open'] : '']
+    .filter(Boolean)
+    .join(' ');
   return createPortal(
     <div
-      className={['backdrop', open ? 'open' : ''].join(' ')}
+      className={className}
       onClick={onClick}
     />,
-    root
+    root,
   );
 };
-
-export default Backdrop;

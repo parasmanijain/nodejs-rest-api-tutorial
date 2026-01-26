@@ -1,56 +1,78 @@
-import { useState } from 'react';
-import Input from '../../components/Form/Input/Input';
-import Button from '../../components/Button/Button';
-import { required, length, email } from '../../util/validators';
-import Auth from './Auth';
+import { FC, FormEvent, useState } from "react";
+import { required, length, email } from "../../util/validators";
+import { Input } from "../../components/Form/Input/Input";
+import { Button } from "../../components/Button/Button";
+import { Auth } from "./Auth";
 
-const Login = (props) => {
-  const [loginForm, setLoginForm] = useState({
+type Validator = (value: string) => boolean;
+
+interface Field {
+  value: string;
+  valid: boolean;
+  touched: boolean;
+  validators: Validator[];
+}
+
+interface LoginForm {
+  email: Field;
+  password: Field;
+}
+
+export interface LoginProps {
+  onLogin: (
+    e: FormEvent<HTMLFormElement>,
+    authData: { email: string; password: string },
+  ) => void;
+  loading?: boolean;
+}
+
+export const Login: FC<LoginProps> = (props) => {
+  const [loginForm, setLoginForm] = useState<LoginForm>({
     email: {
-      value: '',
+      value: "",
       valid: false,
       touched: false,
-      validators: [required, email]
+      validators: [required, email],
     },
     password: {
-      value: '',
+      value: "",
       valid: false,
       touched: false,
-      validators: [required, length({ min: 5 })]
-    }
+      validators: [required, length({ min: 5 })],
+    },
   });
-  const [formIsValid, setFormIsValid] = useState(false);
+  const [, setFormIsValid] = useState<boolean>(false);
 
-  const inputChangeHandler = (input, value) => {
+  const inputChangeHandler = (input: keyof LoginForm, value: string) => {
     setLoginForm((prevState) => {
       let isValid = true;
       for (const validator of prevState[input].validators) {
         isValid = isValid && validator(value);
       }
-      const updatedForm = {
+      const updatedForm: LoginForm = {
         ...prevState,
         [input]: {
           ...prevState[input],
           valid: isValid,
-          value: value
-        }
+          value,
+        },
       };
       let overallValid = true;
       for (const inputName in updatedForm) {
-        overallValid = overallValid && updatedForm[inputName].valid;
+        overallValid = overallValid && (updatedForm as any)[inputName].valid;
       }
       setFormIsValid(overallValid);
       return updatedForm;
     });
   };
 
-  const inputBlurHandler = (input) => {
+  const inputBlurHandler = (input: keyof LoginForm) => {
     setLoginForm((prevState) => ({
       ...prevState,
       [input]: {
         ...prevState[input],
-        touched: true
-      }
+        touched: true,
+      },
     }));
   };
 
@@ -60,7 +82,7 @@ const Login = (props) => {
         onSubmit={(e) =>
           props.onLogin(e, {
             email: loginForm.email.value,
-            password: loginForm.password.value
+            password: loginForm.password.value,
           })
         }
       >
@@ -70,10 +92,10 @@ const Login = (props) => {
           type="email"
           control="input"
           onChange={inputChangeHandler}
-          onBlur={() => inputBlurHandler('email')}
-          value={loginForm['email'].value}
-          valid={loginForm['email'].valid}
-          touched={loginForm['email'].touched}
+          onBlur={() => inputBlurHandler("email")}
+          value={loginForm["email"].value}
+          valid={loginForm["email"].valid}
+          touched={loginForm["email"].touched}
         />
         <Input
           id="password"
@@ -81,10 +103,10 @@ const Login = (props) => {
           type="password"
           control="input"
           onChange={inputChangeHandler}
-          onBlur={() => inputBlurHandler('password')}
-          value={loginForm['password'].value}
-          valid={loginForm['password'].valid}
-          touched={loginForm['password'].touched}
+          onBlur={() => inputBlurHandler("password")}
+          value={loginForm["password"].value}
+          valid={loginForm["password"].valid}
+          touched={loginForm["password"].touched}
         />
         <Button design="raised" type="submit" loading={props.loading}>
           Login
@@ -93,5 +115,3 @@ const Login = (props) => {
     </Auth>
   );
 };
-
-export default Login;

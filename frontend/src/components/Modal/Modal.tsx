@@ -1,28 +1,28 @@
-import React from 'react';
-import { createPortal } from 'react-dom';
-import Button from '../Button/Button';
-import './Modal.scss';
+import { FC, ReactNode } from "react";
+import { createPortal } from "react-dom";
+import { Button } from "../Button/Button";
+import classes from "./Modal.module.scss";
 
 export interface ModalProps {
   title: string;
-  children?: React.ReactNode;
+  children?: ReactNode;
   onCancelModal: () => void;
   onAcceptModal: () => void;
   acceptEnabled?: boolean;
   isLoading?: boolean;
 }
 
-const Modal: React.FC<ModalProps> = (props) => {
-  const root = document.getElementById('modal-root');
+export const Modal: FC<ModalProps> = (props) => {
+  const root = document.getElementById("modal-root");
   if (!root) return null;
 
   return createPortal(
-    <div className="modal">
-      <header className="modal__header">
+    <div className={classes["modal"]}>
+      <header className={classes["modal__header"]}>
         <h1>{props.title}</h1>
       </header>
-      <div className="modal__content">{props.children}</div>
-      <div className="modal__actions">
+      <div className={classes["modal__content"]}>{props.children}</div>
+      <div className={classes["modal__actions"]}>
         <Button design="danger" mode="flat" onClick={props.onCancelModal}>
           Cancel
         </Button>
@@ -36,8 +36,6 @@ const Modal: React.FC<ModalProps> = (props) => {
         </Button>
       </div>
     </div>,
-    root
+    root,
   );
 };
-
-export default Modal;
