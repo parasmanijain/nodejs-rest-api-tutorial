@@ -1,6 +1,6 @@
 
 
-import './Image.css';
+import './Image.scss';
 
 const image = props => (
   <div

@@ -1,7 +1,7 @@
 
 
 import Button from '../../Button/Button';
-import './Post.css';
+import './Post.scss';
 
 const post = props => (
   <article className="post">

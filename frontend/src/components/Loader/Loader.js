@@ -1,6 +1,6 @@
 
 
-import './Loader.css';
+import './Loader.scss';
 
 const loader = props => (
   <div className="loader">

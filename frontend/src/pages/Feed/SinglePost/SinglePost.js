@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Image from '../../../components/Image/Image';
-import './SinglePost.css';
+import './SinglePost.scss';
 
 const SinglePost = (props) => {
   const [title, setTitle] = useState('');

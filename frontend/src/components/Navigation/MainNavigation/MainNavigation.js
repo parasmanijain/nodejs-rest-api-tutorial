@@ -5,7 +5,7 @@ import MobileToggle from '../MobileToggle/MobileToggle';
 import Logo from '../../Logo/Logo';
 import NavigationItems from '../NavigationItems/NavigationItems';
 
-import './MainNavigation.css';
+import './MainNavigation.scss';
 
 const mainNavigation = props => (
   <nav className="main-nav">

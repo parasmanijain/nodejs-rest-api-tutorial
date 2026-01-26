@@ -1,7 +1,7 @@
 
 import { NavLink } from 'react-router-dom';
 
-import './NavigationItems.css';
+import './NavigationItems.scss';
 
 const navItems = [
   { id: 'feed', text: 'Feed', link: '/', auth: true },

@@ -1,6 +1,6 @@
 
 
-import './Toolbar.css';
+import './Toolbar.scss';
 
 const toolbar = props => (
     <div className="toolbar">

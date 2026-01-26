@@ -1,6 +1,6 @@
 
 
-import './Input.css';
+import './Input.scss';
 
 const input = props => (
   <div className="input">
