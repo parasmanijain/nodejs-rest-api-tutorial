@@ -2,32 +2,25 @@
   "name": "nodejs-complete-guide",
   "version": "1.0.0",
   "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://git-codecommit.us-east-1.amazonaws.com/v1/repos/udemy-course-nodejs-complete"
+  },
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
-  "main": "dist/app.js",
-  "scripts": {
-    "clean": "rimraf dist && rimraf data",
-    "build": "npm run clean && tsc",
-    "watch": "tsc --watch",
-    "watch:sass": "sass --watch src/public/styles:dist/public/styles",
-    "watch:views": "chokidar 'src/views/**/*' -c 'cp -r src/views dist/views'",
-    "watch:images": "chokidar 'src/images/**/*' -c 'cp -r src/images dist/images'",
-    "watch:public": "chokidar 'src/public/**/*' -c 'cp -r src/public dist/public'",
-    "dev": "npm run build && concurrently \"npm:watch\" \"nodemon dist/app.js\"",
-    "start": "cross-env NODE_ENV=production node dist/app.js"
-  },
   "dependencies": {
-    "express": "^5.2.1"
+    "body-parser": "^1.18.3",
+    "express": "^4.16.3",
+    "express-validator": "^5.3.0",
+    "mongoose": "^5.3.2",
+    "multer": "^1.4.0"
   },
   "devDependencies": {
-    "@types/express": "^5.0.6",
-    "@types/node": "^25.0.9",
-    "chokidar-cli": "^3.0.0",
-    "concurrently": "^9.2.1",
-    "cross-env": "^10.1.0",
-    "nodemon": "^3.1.11",
-    "rimraf": "^6.1.2",
-    "typescript": "^5.9.3"
+    "nodemon": "^1.18.4"
   }
 }
