@@ -6,13 +6,11 @@
   "main": "dist/app.js",
   "scripts": {
     "clean": "rimraf dist && rimraf data",
-    "build": "npm run clean && tsc && cp -r src/views dist/views && cp -r src/images dist/images 2>/dev/null || mkdir -p dist/images && sass --no-source-map src/public/styles:dist/public/styles",
+    "build": "npm run clean && tsc && cp -r src/images dist/images 2>/dev/null || mkdir -p dist/images",
     "watch": "tsc --watch",
-    "watch:sass": "sass --watch src/public/styles:dist/public/styles",
-    "watch:views": "chokidar 'src/views/**/*' -c 'cp -r src/views dist/views'",
     "watch:images": "chokidar 'src/images/**/*' -c 'cp -r src/images dist/images'",
     "watch:public": "chokidar 'src/public/**/*' -c 'cp -r src/public dist/public'",
-    "dev": "npm run build && concurrently \"npm:watch\" \"npm:watch:sass\" \"npm:watch:views\" \"npm:watch:images\" \"npm:watch:public\" \"nodemon dist/app.js\"",
+    "dev": "npm run build && concurrently \"npm:watch\" \"npm:watch:images\" \"npm:watch:public\" \"nodemon dist/app.js\"",
     "start": "cross-env NODE_ENV=production node dist/app.js"
   },
   "devDependencies": {
