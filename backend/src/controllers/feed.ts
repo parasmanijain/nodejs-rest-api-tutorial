@@ -1,190 +1,239 @@
-import type { NextFunction, Request, Response } from "express";
+import type { Request, Response, NextFunction } from "express";
 import { validationResult } from "express-validator";
 import { unlink } from "fs";
+import { join } from "path";
+import { HttpError } from "../types/http-error";
 import Post from "../models/post";
 import User from "../models/user";
-import { join } from "path";
 
-export function getPosts(req: Request, res: Response, next: NextFunction) {
-  const currentPage = req.query.page || 1;
-  const perPage = 2;
-  let totalItems;
-  Post.find()
-    .countDocuments()
-    .then((count) => {
-      totalItems = count;
-      return Post.find()
-        .skip((currentPage - 1) * perPage)
-        .limit(perPage);
-    })
-    .then((posts) => {
-      res.status(200).json({
-        message: "Fetched posts successfully.",
-        posts: posts,
-        totalItems: totalItems,
-      });
-    })
-    .catch((err) => {
-      if (!err.statusCode) {
-        err.statusCode = 500;
-      }
-      next(err);
+export async function getPosts(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const currentPage = Number(req.query.page) || 1;
+    const perPage = 2;
+    const totalItems = await Post.countDocuments();
+    const posts = await Post.find()
+      .skip((currentPage - 1) * perPage)
+      .limit(perPage);
+    res.status(200).json({
+      message: "Fetched posts successfully.",
+      posts,
+      totalItems,
     });
+  } catch (err) {
+    const error = err as HttpError;
+    error.statusCode ??= 500;
+    next(error);
+  }
 }
 
-export function createPost(req: Request, res: Response, next: NextFunction) {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    const error = new Error("Validation failed, entered data is incorrect.");
-    error.statusCode = 422;
-    throw error;
-  }
-  if (!req.file) {
-    const error = new Error("No image provided.");
-    error.statusCode = 422;
-    throw error;
-  }
-  const imageUrl = req.file.path;
-  const title = req.body.title;
-  const content = req.body.content;
-  let creator;
-  const post = new Post({
-    title: title,
-    content: content,
-    imageUrl: imageUrl,
-    creator: req.userId,
-  });
-  post
-    .save()
-    .then((result) => {
-      return User.findById(req.userId);
-    })
-    .then((user) => {
-      creator = user;
-      user.posts.push(post);
-      return user.save();
-    })
-    .then((result) => {
-      res.status(201).json({
-        message: "Post created successfully!",
-        post: post,
-        creator: { _id: creator._id, name: creator.name },
-      });
-    })
-    .catch((err) => {
-      if (!err.statusCode) {
-        err.statusCode = 500;
-      }
-      next(err);
+export async function createPost(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const error: HttpError = new Error(
+        "Validation failed, entered data is incorrect.",
+      );
+      error.statusCode = 422;
+      error.data = errors.array();
+      throw error;
+    }
+    if (!req.file) {
+      const error: HttpError = new Error("No image provided.");
+      error.statusCode = 422;
+      throw error;
+    }
+
+    if (!req.userId) {
+      const error: HttpError = new Error("Not authenticated.");
+      error.statusCode = 401;
+      throw error;
+    }
+
+    const { title, content } = req.body as {
+      title: string;
+      content: string;
+    };
+
+    const post = new Post({
+      title,
+      content,
+      imageUrl: req.file.path,
+      creator: req.userId,
     });
+
+    await post.save();
+
+    const user = await User.findById(req.userId);
+    if (!user) {
+      const error: HttpError = new Error("User not found.");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    user.posts.push(post._id);
+    await user.save();
+
+    res.status(201).json({
+      message: "Post created successfully!",
+      post,
+      creator: { _id: user._id, name: user.name },
+    });
+  } catch (err) {
+    const error = err as HttpError;
+    error.statusCode ??= 500;
+    next(error);
+  }
 }
 
-export function getPost(req: Request, res: Response, next: NextFunction) {
-  const postId = req.params.postId;
-  Post.findById(postId)
-    .then((post) => {
-      if (!post) {
-        const error = new Error("Could not find post.");
-        error.statusCode = 404;
-        throw error;
-      }
-      res.status(200).json({ message: "Post fetched.", post: post });
-    })
-    .catch((err) => {
-      if (!err.statusCode) {
-        err.statusCode = 500;
-      }
-      next(err);
-    });
+/* =========================
+   GET SINGLE POST
+========================= */
+export async function getPost(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const post = await Post.findById(req.params.postId);
+
+    if (!post) {
+      const error: HttpError = new Error("Could not find post.");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    res.status(200).json({ message: "Post fetched.", post });
+  } catch (err) {
+    const error = err as HttpError;
+    error.statusCode ??= 500;
+    next(error);
+  }
 }
 
-export function updatePost(req: Request, res: Response, next: NextFunction) {
-  const postId = req.params.postId;
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    const error = new Error("Validation failed, entered data is incorrect.");
-    error.statusCode = 422;
-    throw error;
-  }
-  const title = req.body.title;
-  const content = req.body.content;
-  let imageUrl = req.body.image;
-  if (req.file) {
-    imageUrl = req.file.path;
-  }
-  if (!imageUrl) {
-    const error = new Error("No file picked.");
-    error.statusCode = 422;
-    throw error;
-  }
-  Post.findById(postId)
-    .then((post) => {
-      if (!post) {
-        const error = new Error("Could not find post.");
-        error.statusCode = 404;
-        throw error;
-      }
-      if (post.creator.toString() !== req.userId) {
-        const error = new Error("Not authorized!");
-        error.statusCode = 403;
-        throw error;
-      }
-      if (imageUrl !== post.imageUrl) {
-        clearImage(post.imageUrl);
-      }
-      post.title = title;
-      post.imageUrl = imageUrl;
-      post.content = content;
-      return post.save();
-    })
-    .then((result) => {
-      res.status(200).json({ message: "Post updated!", post: result });
-    })
-    .catch((err) => {
-      if (!err.statusCode) {
-        err.statusCode = 500;
-      }
-      next(err);
-    });
-}
+export async function updatePost(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const error: HttpError = new Error(
+        "Validation failed, entered data is incorrect.",
+      );
+      error.statusCode = 422;
+      throw error;
+    }
 
-export function deletePost(req: Request, res: Response, next: NextFunction) {
-  const postId = req.params.postId;
-  Post.findById(postId)
-    .then((post) => {
-      if (!post) {
-        const error = new Error("Could not find post.");
-        error.statusCode = 404;
-        throw error;
-      }
-      if (post.creator.toString() !== req.userId) {
-        const error = new Error("Not authorized!");
-        error.statusCode = 403;
-        throw error;
-      }
-      // Check logged in user
+    if (!req.userId) {
+      const error: HttpError = new Error("Not authenticated.");
+      error.statusCode = 401;
+      throw error;
+    }
+
+    const { title, content } = req.body as {
+      title: string;
+      content: string;
+    };
+
+    let imageUrl: string | undefined = req.body.image;
+    if (req.file) {
+      imageUrl = req.file.path;
+    }
+
+    if (!imageUrl) {
+      const error: HttpError = new Error("No file picked.");
+      error.statusCode = 422;
+      throw error;
+    }
+
+    const post = await Post.findById(req.params.postId);
+    if (!post) {
+      const error: HttpError = new Error("Could not find post.");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    if (post.creator.toString() !== req.userId.toString()) {
+      const error: HttpError = new Error("Not authorized!");
+      error.statusCode = 403;
+      throw error;
+    }
+
+    if (imageUrl !== post.imageUrl) {
       clearImage(post.imageUrl);
-      return Post.findByIdAndDelete(postId);
-    })
-    .then((result) => {
-      return User.findById(req.userId);
-    })
-    .then((user) => {
-      user.posts.pull(postId);
-      return user.save();
-    })
-    .then((result) => {
-      res.status(200).json({ message: "Deleted post." });
-    })
-    .catch((err) => {
-      if (!err.statusCode) {
-        err.statusCode = 500;
-      }
-      next(err);
+    }
+
+    post.title = title;
+    post.content = content;
+    post.imageUrl = imageUrl;
+
+    const updatedPost = await post.save();
+
+    res.status(200).json({
+      message: "Post updated!",
+      post: updatedPost,
     });
+  } catch (err) {
+    const error = err as HttpError;
+    error.statusCode ??= 500;
+    next(error);
+  }
 }
 
-const clearImage = (filePath: string) => {
-  filePath = join(__dirname, "..", filePath);
-  unlink(filePath, (err) => console.log(err));
+export async function deletePost(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    if (!req.userId) {
+      const error: HttpError = new Error("Not authenticated.");
+      error.statusCode = 401;
+      throw error;
+    }
+
+    const post = await Post.findById(req.params.postId);
+    if (!post) {
+      const error: HttpError = new Error("Could not find post.");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    if (post.creator.toString() !== req.userId.toString()) {
+      const error: HttpError = new Error("Not authorized!");
+      error.statusCode = 403;
+      throw error;
+    }
+    clearImage(post.imageUrl);
+    await Post.findByIdAndDelete(req.params.postId);
+    const user = await User.findById(req.userId);
+    if (user) {
+      user.posts = user.posts.filter(
+        (id) => id.toString() !== post._id.toString(),
+      );
+      await user.save();
+    }
+
+    res.status(200).json({ message: "Deleted post." });
+  } catch (err) {
+    const error = err as HttpError;
+    error.statusCode ??= 500;
+    next(error);
+  }
+}
+
+const clearImage = (filePath: string): void => {
+  const absolutePath = join(__dirname, "..", filePath);
+  unlink(absolutePath, (err) => {
+    if (err) console.error(err);
+  });
 };

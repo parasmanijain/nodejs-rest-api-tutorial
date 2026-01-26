@@ -1,26 +1,45 @@
-import { NextFunction, Request, Response } from "express";
-import { verify } from "jsonwebtoken";
+import type { Request, Response, NextFunction } from "express";
+import { verify, type JwtPayload } from "jsonwebtoken";
+import { Types } from "mongoose";
+import { HttpError } from "../types/http-error";
 
-export default (req: Request, _res: Response, next: NextFunction) => {
+interface AuthTokenPayload extends JwtPayload {
+  userId: string;
+}
+
+export default function isAuth(
+  req: Request,
+  _res: Response,
+  next: NextFunction,
+): void {
   const authHeader = req.get("Authorization");
+
   if (!authHeader) {
-    const error = new Error("Not authenticated.");
+    const error: HttpError = new Error("Not authenticated.");
     error.statusCode = 401;
     throw error;
   }
+
   const token = authHeader.split(" ")[1];
-  let decodedToken;
+
+  let decodedToken: AuthTokenPayload;
   try {
-    decodedToken = verify(token, "somesupersecretsecret");
+    decodedToken = verify(
+      token,
+      process.env.JWT_SECRET as string,
+    ) as AuthTokenPayload;
   } catch (err) {
-    err.statusCode = 500;
-    throw err;
+    const error = err as HttpError;
+    error.statusCode ??= 500;
+    throw error;
   }
-  if (!decodedToken) {
-    const error = new Error("Not authenticated.");
+
+  if (!decodedToken?.userId) {
+    const error: HttpError = new Error("Not authenticated.");
     error.statusCode = 401;
     throw error;
   }
-  req.userId = decodedToken.userId;
+
+  req.userId = new Types.ObjectId(decodedToken.userId);
   next();
-};
+}

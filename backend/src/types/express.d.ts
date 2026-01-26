@@ -1,4 +1,5 @@
 import { Multer } from "multer";
+import { Types } from "mongoose";
 import { UserDocument } from "../../models/user";
 
 declare global {
@@ -7,6 +8,7 @@ declare global {
       user?: UserDocument;
       isLoggedIn?: boolean;
       file?: Multer.File;
+      userId?: Types.ObjectId;
     }
   }
 }
