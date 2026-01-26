@@ -1,5 +1,5 @@
-import  { Fragment, useCallback, useEffect, useRef, useState } from 'react';
-import { Route, Routes, Navigate, withRouter } from 'react-router-dom';
+import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import Layout from './components/Layout/Layout';
 import Backdrop from './components/Backdrop/Backdrop';
 import Toolbar from './components/Toolbar/Toolbar';
@@ -12,7 +12,7 @@ import LoginPage from './pages/Auth/Login';
 import SignupPage from './pages/Auth/Signup';
 import './App.css';
 
-const App = (props) => {
+const App = () => {
   const [showBackdrop, setShowBackdrop] = useState(false);
   const [showMobileNav, setShowMobileNav] = useState(false);
   const [isAuth, setIsAuth] = useState(true);
@@ -22,6 +22,7 @@ const App = (props) => {
   const [error, setError] = useState(null);
 
   const logoutTimer = useRef(null);
+  const navigate = useNavigate();
 
   const logoutHandler = useCallback(() => {
     setIsAuth(false);
@@ -31,24 +32,27 @@ const App = (props) => {
     localStorage.removeItem('userId');
   }, []);
 
-  const setAutoLogout = useCallback((milliseconds) => {
-    if (logoutTimer.current) {
-      clearTimeout(logoutTimer.current);
-    }
-    logoutTimer.current = setTimeout(() => {
-      logoutHandler();
-    }, milliseconds);
-  }, [logoutHandler]);
+  const setAutoLogout = useCallback(
+    (milliseconds) => {
+      if (logoutTimer.current) {
+        clearTimeout(logoutTimer.current);
+      }
+      logoutTimer.current = setTimeout(() => {
+        logoutHandler();
+      }, milliseconds);
+    },
+    [logoutHandler]
+  );
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     const expiryDate = localStorage.getItem('expiryDate');
     if (!token || !expiryDate) {
-      return;
+      return undefined;
     }
     if (new Date(expiryDate) <= new Date()) {
       logoutHandler();
-      return;
+      return undefined;
     }
     const userId = localStorage.getItem('userId');
     const remainingMilliseconds =
@@ -80,7 +84,7 @@ const App = (props) => {
     event.preventDefault();
     setAuthLoading(true);
     fetch('URL')
-      .then(res => {
+      .then((res) => {
         if (res.status === 422) {
           throw new Error('Validation failed.');
         }
@@ -89,7 +93,7 @@ const App = (props) => {
         }
         return res.json();
       })
-      .then(resData => {
+      .then((resData) => {
         setIsAuth(true);
         setToken(resData.token);
         setAuthLoading(false);
@@ -97,11 +101,13 @@ const App = (props) => {
         localStorage.setItem('token', resData.token);
         localStorage.setItem('userId', resData.userId);
         const remainingMilliseconds = 60 * 60 * 1000;
-        const expiryDate = new Date(new Date().getTime() + remainingMilliseconds);
+        const expiryDate = new Date(
+          new Date().getTime() + remainingMilliseconds
+        );
         localStorage.setItem('expiryDate', expiryDate.toISOString());
         setAutoLogout(remainingMilliseconds);
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
         setIsAuth(false);
         setAuthLoading(false);
@@ -113,23 +119,24 @@ const App = (props) => {
     event.preventDefault();
     setAuthLoading(true);
     fetch('URL')
-      .then(res => {
+      .then((res) => {
         if (res.status === 422) {
-          throw new Error("Validation failed. Make sure the email address isn't used yet!");
+          throw new Error(
+            "Validation failed. Make sure the email address isn't used yet!"
+          );
         }
         if (res.status !== 200 && res.status !== 201) {
           throw new Error('Creating a user failed!');
         }
         return res.json();
       })
-      .then(resData => {
+      .then(() => {
         setIsAuth(false);
         setAuthLoading(false);
-        if (props.history && props.history.replace) {
-          props.history.replace('/');
-        }
+        // Replace history.replace('/') with navigate('/', { replace: true }) in v6
+        navigate('/', { replace: true });
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
         setIsAuth(false);
         setAuthLoading(false);
@@ -145,27 +152,13 @@ const App = (props) => {
     <Routes>
       <Route
         path="/"
-        exact
-        render={routeProps => (
-          <LoginPage
-            {...routeProps}
-            onLogin={loginHandler}
-            loading={authLoading}
-          />
-        )}
+        element={<LoginPage onLogin={loginHandler} loading={authLoading} />}
       />
       <Route
         path="/signup"
-        exact
-        render={routeProps => (
-          <SignupPage
-            {...routeProps}
-            onSignup={signupHandler}
-            loading={authLoading}
-          />
-        )}
+        element={<SignupPage onSignup={signupHandler} loading={authLoading} />}
       />
-      <Navigate to="/" />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 
@@ -174,22 +167,13 @@ const App = (props) => {
       <Routes>
         <Route
           path="/"
-          exact
-          render={routeProps => (
-            <FeedPage userId={userId} token={token} />
-          )}
+          element={<FeedPage userId={userId} token={token} />}
         />
         <Route
           path="/:postId"
-          render={routeProps => (
-            <SinglePostPage
-              {...routeProps}
-              userId={userId}
-              token={token}
-            />
-          )}
+          element={<SinglePostPage userId={userId} token={token} />}
         />
-        <Navigate to="/" />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     );
   }
@@ -223,4 +207,4 @@ const App = (props) => {
   );
 };
 
-export default withRouter(App);
+export default App;
