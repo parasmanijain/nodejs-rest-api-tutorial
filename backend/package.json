@@ -2,24 +2,38 @@
   "name": "nodejs-complete-guide",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "type": "commonjs",
+  "main": "dist/app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon app.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://git-codecommit.us-east-1.amazonaws.com/v1/repos/udemy-course-nodejs-complete"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "express": "^5.2.1",
-    "express-validator": "^7.3.1",
-    "mongoose": "^9.1.5",
-    "multer": "^2.0.2"
+    "clean": "rimraf dist && rimraf data",
+    "build": "npm run clean && tsc && cp -r src/views dist/views && cp -r src/images dist/images 2>/dev/null || mkdir -p dist/images && sass --no-source-map src/public/styles:dist/public/styles",
+    "watch": "tsc --watch",
+    "watch:sass": "sass --watch src/public/styles:dist/public/styles",
+    "watch:views": "chokidar 'src/views/**/*' -c 'cp -r src/views dist/views'",
+    "watch:images": "chokidar 'src/images/**/*' -c 'cp -r src/images dist/images'",
+    "watch:public": "chokidar 'src/public/**/*' -c 'cp -r src/public dist/public'",
+    "dev": "npm run build && concurrently \"npm:watch\" \"npm:watch:sass\" \"npm:watch:views\" \"npm:watch:images\" \"npm:watch:public\" \"nodemon dist/app.js\"",
+    "start": "cross-env NODE_ENV=production node dist/app.js"
   },
   "devDependencies": {
-    "nodemon": "^3.1.11"
+    "@types/express": "^5.0.6",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^25.0.9",
+    "chokidar-cli": "^3.0.0",
+    "concurrently": "^9.2.1",
+    "cross-env": "^10.1.0",
+    "nodemon": "^3.1.11",
+    "rimraf": "^6.1.2",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "express-session": "^1.18.2",
+    "express-validator": "^7.3.1",
+    "mongoose": "^9.1.4",
+    "multer": "^2.0.2",
+    "nodemailer": "^7.0.12",
+    "sass": "^1.97.2"
   }
 }
