@@ -1,6 +1,14 @@
-import { model, Schema } from "mongoose";
+import { Schema, model, Document, Types } from "mongoose";
 
-const userSchema = new Schema({
+export interface IUser extends Document {
+  email: string;
+  password: string;
+  name: string;
+  status: string;
+  posts: Types.ObjectId[];
+}
+
+const userSchema = new Schema<IUser>({
   email: {
     type: String,
     required: true,
@@ -25,4 +33,4 @@ const userSchema = new Schema({
   ],
 });
 
-export default model("User", userSchema);
+export default model<IUser>("User", userSchema);

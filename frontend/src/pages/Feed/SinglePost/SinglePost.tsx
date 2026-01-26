@@ -1,9 +1,14 @@
-import { useEffect, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Image } from "../../../components/Image/Image";
 import classes from "./SinglePost.module.scss";
 
-export const SinglePost = () => {
+export interface SinglePostProps {
+  userId: string | null;
+  token: string | null;
+}
+
+export const SinglePost: FC<SinglePostProps> = ({ token }) => {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [date, setDate] = useState("");
@@ -11,7 +16,11 @@ export const SinglePost = () => {
   const [content, setContent] = useState("");
   const { postId } = useParams();
   useEffect(() => {
-    fetch("http://localhost:8080/feed/post/" + postId)
+    fetch("http://localhost:8080/feed/post/" + postId, {
+      headers: {
+        Authorization: "Bearer " + (token ?? "")
+      }
+    })
       .then((res) => {
         if (res.status !== 200) {
           throw new Error("Failed to fetch status");
@@ -28,7 +37,7 @@ export const SinglePost = () => {
       .catch((err) => {
         console.log(err);
       });
-  }, [postId]);
+  }, [postId, token]);
 
   return (
     <section className={classes["single-post"]}>

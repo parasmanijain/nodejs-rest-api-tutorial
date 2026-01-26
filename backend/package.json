@@ -14,11 +14,10 @@
     "start": "cross-env NODE_ENV=production node dist/app.js"
   },
   "devDependencies": {
-    "@types/bcryptjs": "^2.4.6",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^2.0.0",
-    "@types/node": "^25.0.9",
+    "@types/node": "^25.0.10",
     "chokidar-cli": "^3.0.0",
     "concurrently": "^9.2.1",
     "cross-env": "^10.1.0",
@@ -27,14 +26,13 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "bcryptjs": "^2.4.3",
-    "body-parser": "^1.18.3",
+    "bcryptjs": "^3.0.3",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "express-validator": "^7.3.1",
-    "jsonwebtoken": "^8.3.0",
-    "mongoose": "^9.1.4",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.1.5",
     "multer": "^2.0.2",
-    "sass": "^1.97.2"
+    "sass": "^1.97.3"
   }
 }

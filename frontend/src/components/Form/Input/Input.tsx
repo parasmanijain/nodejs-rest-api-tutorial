@@ -45,14 +45,7 @@ export const Input: FC<InputProps> = (props) => {
       )}
       {props.control === "textarea" && (
         <textarea
-          className={
-            classes[
-            [
-              !props.valid ? "invalid" : "valid",
-              props.touched ? "touched" : "untouched",
-            ].join(" ")
-            ]
-          }
+          className={fieldClassName}
           id={props.id}
           rows={props.rows}
           required={props.required}

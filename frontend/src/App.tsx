@@ -15,7 +15,7 @@ import './App.scss';
 export const App: FC = () => {
   const [showBackdrop, setShowBackdrop] = useState<boolean>(false);
   const [showMobileNav, setShowMobileNav] = useState<boolean>(false);
-  const [isAuth, setIsAuth] = useState<boolean>(true);
+  const [isAuth, setIsAuth] = useState<boolean>(false);
   const [token, setToken] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [authLoading, setAuthLoading] = useState<boolean>(false);
@@ -82,11 +82,20 @@ export const App: FC = () => {
 
   const loginHandler = (
     event: FormEvent<HTMLFormElement>,
-    _authData: { email: string; password: string }
+    authData: { email: string; password: string }
   ) => {
     event.preventDefault();
     setAuthLoading(true);
-    fetch('URL')
+    fetch('http://localhost:8080/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: authData.email,
+        password: authData.password
+      })
+    })
       .then((res) => {
         if (res.status === 422) {
           throw new Error('Validation failed.');
@@ -132,11 +141,21 @@ export const App: FC = () => {
 
   const signupHandler = (
     event: FormEvent<HTMLFormElement>,
-    _payload: { signupForm: SignupForm; formIsValid: boolean }
+    payload: { signupForm: SignupForm; formIsValid: boolean }
   ) => {
     event.preventDefault();
     setAuthLoading(true);
-    fetch('URL')
+    fetch('http://localhost:8080/auth/signup', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: payload.signupForm.email.value,
+        password: payload.signupForm.password.value,
+        name: payload.signupForm.name.value
+      })
+    })
       .then((res) => {
         if (res.status === 422) {
           throw new Error(

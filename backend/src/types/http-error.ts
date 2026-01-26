@@ -1,3 +1,4 @@
 export interface HttpError extends Error {
-  httpStatusCode?: number;
+  statusCode?: number;
+  data?: unknown;
 }

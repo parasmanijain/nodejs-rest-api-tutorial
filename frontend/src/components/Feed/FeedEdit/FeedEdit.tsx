@@ -105,7 +105,7 @@ export const FeedEdit: FC<FeedEditProps> = (props) => {
     setPostForm((prevState) => {
       let isValid = true;
       for (const validator of prevState[input].validators) {
-        isValid = isValid && Boolean(validator(files && files.length > 0 ? files[0] : value));
+        isValid = isValid && Boolean(validator(value));
       }
       const updatedForm: PostForm = {
         ...prevState,

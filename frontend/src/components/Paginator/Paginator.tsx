@@ -1,6 +1,15 @@
+import { FC, ReactNode } from "react";
 import classes from "./Paginator.module.scss";
 
-export const Paginator = (props) => (
+export interface PaginatorProps {
+  children?: ReactNode;
+  currentPage: number;
+  lastPage: number;
+  onPrevious: () => void;
+  onNext: () => void;
+}
+
+export const Paginator: FC<PaginatorProps> = (props) => (
   <div className={classes["paginator"]}>
     {props.children}
     <div className={classes["paginator__controls"]}>

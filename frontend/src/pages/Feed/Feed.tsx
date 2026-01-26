@@ -26,7 +26,7 @@ export interface FeedPost {
   imageUrl?: string;
 }
 
-export const Feed: FC<FeedProps> = () => {
+export const Feed: FC<FeedProps> = ({ token }) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [totalPosts, setTotalPosts] = useState<number>(0);
@@ -68,7 +68,11 @@ export const Feed: FC<FeedProps> = () => {
       page--;
       setPostPage(page);
     }
-    fetch('http://localhost:8080/feed/posts')
+    fetch('http://localhost:8080/feed/posts?page=' + page, {
+      headers: {
+        Authorization: 'Bearer ' + (token ?? '')
+      }
+    })
       .then(res => {
         if (res.status !== 200) {
           throw new Error('Failed to fetch posts.');
@@ -118,17 +122,20 @@ export const Feed: FC<FeedProps> = () => {
     const formData = new FormData();
     formData.append('title', postData.title);
     formData.append('content', postData.content);
-    formData.append('image', postData.image);
+    formData.append('image', postData.image as Blob | string);
     let url = 'http://localhost:8080/feed/post';
     let method: 'POST' | 'PUT' = 'POST';
     if (editPost) {
-      url = 'URL';
+      url = 'http://localhost:8080/feed/post/' + editPost._id;
       method = 'PUT';
     }
 
     fetch(url, {
       method,
-      body: formData
+      body: formData,
+      headers: {
+        Authorization: 'Bearer ' + (token ?? '')
+      }
     })
       .then(res => {
         if (res.status !== 200 && res.status !== 201) {
@@ -183,7 +190,12 @@ export const Feed: FC<FeedProps> = () => {
 
   const deletePostHandler = (postId: string) => {
     setPostsLoading(true);
-    fetch('URL')
+    fetch('http://localhost:8080/feed/post/' + postId, {
+      method: 'DELETE',
+      headers: {
+        Authorization: 'Bearer ' + (token ?? '')
+      }
+    })
       .then(res => {
         if (res.status !== 200 && res.status !== 201) {
           throw new Error('Deleting a post failed!');

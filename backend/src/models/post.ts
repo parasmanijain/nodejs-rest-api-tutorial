@@ -1,21 +1,32 @@
-import { Schema, model, type Document } from "mongoose";
+import { Schema, model, Document, Types } from "mongoose";
 
 export interface IPost extends Document {
   title: string;
   imageUrl: string;
   content: string;
-  creator: { name: string };
-  createdAt?: Date;
-  updatedAt?: Date;
+  creator: Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const postSchema = new Schema<IPost>(
   {
-    title: { type: String, required: true },
-    imageUrl: { type: String, required: true },
-    content: { type: String, required: true },
+    title: {
+      type: String,
+      required: true,
+    },
+    imageUrl: {
+      type: String,
+      required: true,
+    },
+    content: {
+      type: String,
+      required: true,
+    },
     creator: {
-      name: { type: String, required: true },
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
   },
   { timestamps: true },

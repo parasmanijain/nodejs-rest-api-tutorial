@@ -10,7 +10,9 @@ import express, {
 } from "express";
 import { connect } from "mongoose";
 import multer, { diskStorage, type FileFilterCallback } from "multer";
+import { HttpError } from "./types/http-error";
 import feedRoutes from "./routes/feed";
+import authRoutes from "./routes/auth";
 
 dotenv.config();
 
@@ -30,8 +32,6 @@ const app = express();
 const MONGO_URI = `mongodb+srv://${MONGODB_USER}:${MONGODB_PASSWORD}@${MONGODB_HOST}/${MONGODB_DATABASE}?retryWrites=true&w=majority`;
 const UPLOAD_DIR = resolve(process.cwd(), "images");
 mkdirSync(UPLOAD_DIR, { recursive: true });
-
-type HttpError = Error & { statusCode?: number };
 
 const fileStorage = diskStorage({
   destination: (_req, _file, cb) => {
@@ -66,14 +66,16 @@ app.use((_req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
+app.use("/auth", authRoutes);
 app.use("/feed", feedRoutes);
 
 app.use(
   (error: HttpError, _req: Request, res: Response, _next: NextFunction) => {
     const status = error.statusCode ?? 500;
     const message = error.message || "Unexpected error";
+    const data = error.data;
     console.error(error);
-    res.status(status).json({ message });
+    res.status(status).json({ message, data });
   },
 );
 
