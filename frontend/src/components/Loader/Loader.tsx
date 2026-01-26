@@ -1,8 +1,7 @@
-
-
+import React from 'react';
 import './Loader.scss';
 
-const loader = props => (
+const Loader: React.FC = () => (
   <div className="loader">
     <div />
     <div />
@@ -11,4 +10,4 @@ const loader = props => (
   </div>
 );
 
-export default loader;
+export default Loader;

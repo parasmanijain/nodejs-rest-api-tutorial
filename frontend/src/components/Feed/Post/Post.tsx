@@ -1,9 +1,17 @@
-
-
+import React from 'react';
 import Button from '../../Button/Button';
 import './Post.scss';
 
-const post = props => (
+export interface PostProps {
+  id: string;
+  author: string;
+  date: string;
+  title: string;
+  onStartEdit: () => void;
+  onDelete: () => void;
+}
+
+const Post: React.FC<PostProps> = (props) => (
   <article className="post">
     <header className="post__header">
       <h3 className="post__meta">
@@ -29,4 +37,4 @@ const post = props => (
   </article>
 );
 
-export default post;
+export default Post;

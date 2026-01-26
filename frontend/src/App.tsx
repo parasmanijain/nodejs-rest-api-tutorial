@@ -33,7 +33,7 @@ const App = () => {
   }, []);
 
   const setAutoLogout = useCallback(
-    (milliseconds) => {
+    (milliseconds: number) => {
       if (logoutTimer.current) {
         clearTimeout(logoutTimer.current);
       }

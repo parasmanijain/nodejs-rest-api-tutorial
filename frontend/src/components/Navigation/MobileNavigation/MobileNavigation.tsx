@@ -1,9 +1,16 @@
-
-
+import React from 'react';
 import NavigationItems from '../NavigationItems/NavigationItems';
 import './MobileNavigation.scss';
 
-const mobileNavigation = props => (
+export interface MobileNavigationProps {
+  open?: boolean;
+  mobile?: boolean;
+  onChooseItem?: () => void;
+  isAuth: boolean;
+  onLogout: () => void;
+}
+
+const MobileNavigation: React.FC<MobileNavigationProps> = (props) => (
   <nav className={['mobile-nav', props.open ? 'open' : ''].join(' ')}>
     <ul
       className={['mobile-nav__items', props.mobile ? 'mobile' : ''].join(' ')}
@@ -18,4 +25,4 @@ const mobileNavigation = props => (
   </nav>
 );
 
-export default mobileNavigation;
+export default MobileNavigation;

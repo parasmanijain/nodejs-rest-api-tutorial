@@ -1,8 +1,13 @@
-
-
+import React from 'react';
 import './Image.scss';
 
-const image = props => (
+export interface ImageProps {
+  imageUrl: string;
+  contain?: boolean;
+  left?: boolean;
+}
+
+const Image: React.FC<ImageProps> = (props) => (
   <div
     className="image"
     style={{
@@ -13,4 +18,4 @@ const image = props => (
   />
 );
 
-export default image;
+export default Image;

@@ -1,9 +1,13 @@
-
-
+import React from 'react';
 import Image from './Image';
 import './Avatar.scss';
 
-const avatar = props => (
+export interface AvatarProps {
+  image: string;
+  size: number; // in rem
+}
+
+const Avatar: React.FC<AvatarProps> = (props) => (
   <div
     className="avatar"
     style={{ width: props.size + 'rem', height: props.size + 'rem' }}
@@ -12,4 +16,4 @@ const avatar = props => (
   </div>
 );
 
-export default avatar;
+export default Avatar;

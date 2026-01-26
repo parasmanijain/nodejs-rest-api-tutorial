@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import Backdrop from '../../Backdrop/Backdrop';
 import Modal from '../../Modal/Modal';
 import Input from '../../Form/Input/Input';
@@ -7,7 +7,36 @@ import Image from '../../Image/Image';
 import { required, length } from '../../../util/validators';
 import { generateBase64FromImage } from '../../../util/image';
 
-const POST_FORM = {
+type Validator = (value: unknown) => boolean;
+
+interface PostFormField<T> {
+  value: T;
+  valid: boolean;
+  touched: boolean;
+  validators: Validator[];
+}
+
+interface PostForm {
+  title: PostFormField<string>;
+  image: PostFormField<File | string>;
+  content: PostFormField<string>;
+}
+
+export interface SelectedPost {
+  title: string;
+  imagePath: string;
+  content: string;
+}
+
+export interface FeedEditProps {
+  editing: boolean;
+  selectedPost?: SelectedPost | null;
+  loading?: boolean;
+  onCancelEdit: () => void;
+  onFinishEdit: (post: { title: string; image: File | string; content: string }) => void;
+}
+
+const POST_FORM: PostForm = {
   title: {
     value: '',
     valid: false,
@@ -28,13 +57,13 @@ const POST_FORM = {
   }
 };
 
-const FeedEdit = (props) => {
-  const [postForm, setPostForm] = useState(POST_FORM);
-  const [formIsValid, setFormIsValid] = useState(false);
-  const [imagePreview, setImagePreview] = useState(null);
+const FeedEdit: React.FC<FeedEditProps> = (props) => {
+  const [postForm, setPostForm] = useState<PostForm>(POST_FORM);
+  const [formIsValid, setFormIsValid] = useState<boolean>(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  const prevEditingRef = useRef(props.editing);
-  const prevSelectedPostRef = useRef(props.selectedPost);
+  const prevEditingRef = useRef<boolean>(props.editing);
+  const prevSelectedPostRef = useRef<SelectedPost | null | undefined>(props.selectedPost);
 
   useEffect(() => {
     const prevEditing = prevEditingRef.current;
@@ -47,9 +76,9 @@ const FeedEdit = (props) => {
       props.selectedPost
     ) {
       setPostForm((prev) => ({
-        title: { ...prev.title, value: props.selectedPost.title, valid: true },
-        image: { ...prev.image, value: props.selectedPost.imagePath, valid: true },
-        content: { ...prev.content, value: props.selectedPost.content, valid: true }
+        title: { ...prev.title, value: props.selectedPost!.title, valid: true },
+        image: { ...prev.image, value: props.selectedPost!.imagePath, valid: true },
+        content: { ...prev.content, value: props.selectedPost!.content, valid: true }
       }));
       setFormIsValid(true);
     }
@@ -58,10 +87,14 @@ const FeedEdit = (props) => {
     prevSelectedPostRef.current = props.selectedPost;
   }, [props.editing, props.selectedPost]);
 
-  const postInputChangeHandler = (input, value, files) => {
-    if (files) {
+  const postInputChangeHandler = (
+    input: keyof PostForm,
+    value: string,
+    files?: FileList | null
+  ) => {
+    if (files && files.length > 0) {
       generateBase64FromImage(files[0])
-        .then((b64) => {
+        .then((b64: string) => {
           setImagePreview(b64);
         })
         .catch(() => {
@@ -72,20 +105,22 @@ const FeedEdit = (props) => {
     setPostForm((prevState) => {
       let isValid = true;
       for (const validator of prevState[input].validators) {
-        isValid = isValid && validator(value);
+        isValid = isValid && Boolean(validator(files && files.length > 0 ? files[0] : value));
       }
-      const updatedForm = {
+      const updatedForm: PostForm = {
         ...prevState,
         [input]: {
           ...prevState[input],
           valid: isValid,
-          value: files ? files[0] : value
+          value: files && files.length > 0 ? files[0] : value
         }
       };
 
       let overallValid = true;
       for (const inputName in updatedForm) {
-        overallValid = overallValid && updatedForm[inputName].valid;
+        if (Object.prototype.hasOwnProperty.call(updatedForm, inputName)) {
+          overallValid = overallValid && (updatedForm as any)[inputName].valid;
+        }
       }
 
       setFormIsValid(overallValid);
@@ -93,7 +128,7 @@ const FeedEdit = (props) => {
     });
   };
 
-  const inputBlurHandler = (input) => {
+  const inputBlurHandler = (input: keyof PostForm) => {
     setPostForm((prevState) => ({
       ...prevState,
       [input]: {
@@ -129,7 +164,7 @@ const FeedEdit = (props) => {
         acceptEnabled={formIsValid}
         onCancelModal={cancelPostChangeHandler}
         onAcceptModal={acceptPostChangeHandler}
-        isLoading={props.loading}
+        isLoading={Boolean(props.loading)}
       >
         <form>
           <Input
@@ -145,7 +180,6 @@ const FeedEdit = (props) => {
           <FilePicker
             id="image"
             label="Image"
-            control="input"
             onChange={postInputChangeHandler}
             onBlur={() => inputBlurHandler('image')}
             valid={postForm['image'].valid}
@@ -159,7 +193,7 @@ const FeedEdit = (props) => {
             id="content"
             label="Content"
             control="textarea"
-            rows="5"
+            rows={5}
             onChange={postInputChangeHandler}
             onBlur={() => inputBlurHandler('content')}
             valid={postForm['content'].valid}

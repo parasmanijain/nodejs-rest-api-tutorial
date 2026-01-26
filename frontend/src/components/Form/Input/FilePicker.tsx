@@ -1,8 +1,16 @@
-
-
+import React from 'react';
 import './Input.scss';
 
-const filePicker = props => (
+export interface FilePickerProps {
+  id: string;
+  label: string;
+  valid: boolean;
+  touched: boolean;
+  onChange: (id: string, value: string, files?: FileList | null) => void;
+  onBlur?: React.FocusEventHandler<HTMLInputElement>;
+}
+
+const FilePicker: React.FC<FilePickerProps> = (props) => (
   <div className="input">
     <label htmlFor={props.id}>{props.label}</label>
     <input
@@ -12,10 +20,10 @@ const filePicker = props => (
       ].join(' ')}
       type="file"
       id={props.id}
-      onChange={e => props.onChange(props.id, e.target.value, e.target.files)}
+      onChange={(e) => props.onChange(props.id, e.target.value, e.target.files)}
       onBlur={props.onBlur}
     />
   </div>
 );
 
-export default filePicker;
+export default FilePicker;

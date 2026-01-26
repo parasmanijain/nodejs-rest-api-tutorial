@@ -1,4 +1,4 @@
-
+import React from 'react';
 import { NavLink } from 'react-router-dom';
 
 import MobileToggle from '../MobileToggle/MobileToggle';
@@ -7,7 +7,13 @@ import NavigationItems from '../NavigationItems/NavigationItems';
 
 import './MainNavigation.scss';
 
-const mainNavigation = props => (
+export interface MainNavigationProps {
+  isAuth: boolean;
+  onLogout: () => void;
+  onOpenMobileNav: () => void;
+}
+
+const MainNavigation: React.FC<MainNavigationProps> = (props) => (
   <nav className="main-nav">
     <MobileToggle onOpen={props.onOpenMobileNav} />
     <div className="main-nav__logo">
@@ -22,4 +28,4 @@ const mainNavigation = props => (
   </nav>
 );
 
-export default mainNavigation;
+export default MainNavigation;
