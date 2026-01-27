@@ -17,6 +17,7 @@ export const getPosts = async (
     const perPage = 2;
     const totalItems = await Post.countDocuments();
     const posts = await Post.find()
+      .populate("creator")
       .skip((currentPage - 1) * perPage)
       .limit(perPage);
     res.status(200).json({
