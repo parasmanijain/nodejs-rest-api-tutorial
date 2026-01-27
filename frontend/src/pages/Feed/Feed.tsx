@@ -51,7 +51,6 @@ export const Feed: FC<FeedProps> = ({ token, userId }) => {
       .catch(catchError);
 
     loadPosts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadPosts = (direction?: 'next' | 'previous') => {

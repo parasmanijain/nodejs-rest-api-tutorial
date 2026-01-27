@@ -10,7 +10,7 @@ export interface FilePickerProps {
   onBlur?: FocusEventHandler<HTMLInputElement>;
 }
 
-export const FilePicker: FC<FilePickerProps> = () => {
+export const FilePicker: FC<FilePickerProps> = ({ valid, touched, id, label, onChange, onBlur }) => {
   const inputClassName = [
     valid ? classes.valid : classes.invalid,
     touched ? classes.touched : classes.untouched,
