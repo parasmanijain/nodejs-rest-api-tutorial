@@ -9,6 +9,7 @@ import express, {
 } from "express";
 import { connect } from "mongoose";
 import multer, { diskStorage, type FileFilterCallback } from "multer";
+import { v4 as uuidv4 } from "uuid";
 import { HttpError } from "./types/http-error";
 import feedRoutes from "./routes/feed";
 import authRoutes from "./routes/auth";
@@ -39,7 +40,7 @@ const fileStorage = diskStorage({
     cb(null, imagesDir);
   },
   filename: (_req, file, cb) => {
-    cb(null, new Date().toISOString() + "-" + file.originalname);
+    cb(null, uuidv4() + "-" + file.originalname);
   },
 });
 

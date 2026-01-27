@@ -1,12 +1,10 @@
 import type { Request, Response, NextFunction } from "express";
 import { validationResult } from "express-validator";
 import { unlink } from "fs";
-// CHANGE: Use basename and posix.join to store web-friendly (forward-slash) relative paths
 import { basename, join, posix } from "path";
 import { HttpError } from "../types/http-error";
 import Post from "../models/post";
 import User from "../models/user";
-// CHANGE: Use imagesDir for resolving actual file system locations
 import { imagesDir } from "../util/path";
 
 export async function getPosts(
@@ -65,8 +63,7 @@ export async function createPost(
       content: string;
     };
 
-    // CHANGE: Store relative web path "images/<filename>" (forward slashes)
-    const imageUrl = posix.join("images", req.file.filename);
+    const imageUrl = posix.join("images", req.file.filename.replace("\\", "/"));
 
     const post = new Post({
       title,
@@ -99,9 +96,6 @@ export async function createPost(
   }
 }
 
-/* =========================
-   GET SINGLE POST
-========================= */
 export async function getPost(
   req: Request,
   res: Response,
@@ -151,9 +145,8 @@ export async function updatePost(
     };
 
     let imageUrl: string | undefined = req.body.image;
-    // CHANGE: If a new file is uploaded, set relative "images/<filename>"
     if (req.file) {
-      imageUrl = posix.join("images", req.file.filename);
+      imageUrl = posix.join("images", req.file.filename.replace("\\", "/"));
     }
 
     if (!imageUrl) {
