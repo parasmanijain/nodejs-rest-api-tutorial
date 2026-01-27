@@ -11,8 +11,8 @@ import { connect } from "mongoose";
 import multer, { diskStorage, type FileFilterCallback } from "multer";
 import { v4 as uuidv4 } from "uuid";
 import { HttpError } from "./types/http-error";
-import feedRoutes from "./routes/feed";
-import authRoutes from "./routes/auth";
+import { feedRouter } from "./routes/feed";
+import { authRouter } from "./routes/auth";
 import { imagesDir } from "./util/path";
 
 dotenv.config();
@@ -69,8 +69,8 @@ app.use((_req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-app.use("/auth", authRoutes);
-app.use("/feed", feedRoutes);
+app.use("/auth", authRouter);
+app.use("/feed", feedRouter);
 
 app.use(
   (error: HttpError, _req: Request, res: Response, _next: NextFunction) => {

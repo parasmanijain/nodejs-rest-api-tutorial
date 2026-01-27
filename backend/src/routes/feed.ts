@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { body } from "express-validator";
-import isAuth from "../middleware/is-auth";
+import { isAuth } from "../middleware/is-auth";
 import {
   createPost,
   deletePost,
@@ -9,13 +9,13 @@ import {
   updatePost,
 } from "../controllers/feed";
 
-const router = Router();
+export const feedRouter = Router();
 
 // GET /feed/posts
-router.get("/posts", isAuth, getPosts);
+feedRouter.get("/posts", isAuth, getPosts);
 
 // POST /feed/post
-router.post(
+feedRouter.post(
   "/post",
   isAuth,
   [
@@ -26,9 +26,9 @@ router.post(
 );
 
 // GET /feed/post/:postId
-router.get("/post/:postId", isAuth, getPost);
+feedRouter.get("/post/:postId", isAuth, getPost);
 
-router.put(
+feedRouter.put(
   "/post/:postId",
   isAuth,
   [
@@ -38,6 +38,4 @@ router.put(
   updatePost,
 );
 
-router.delete("/post/:postId", isAuth, deletePost);
-
-export default router;
+feedRouter.delete("/post/:postId", isAuth, deletePost);

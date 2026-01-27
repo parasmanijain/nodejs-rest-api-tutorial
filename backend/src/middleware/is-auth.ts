@@ -7,11 +7,11 @@ interface AuthTokenPayload extends JwtPayload {
   userId: string;
 }
 
-export default function isAuth(
+export const isAuth = (
   req: Request,
   _res: Response,
   next: NextFunction,
-): void {
+): void => {
   const authHeader = req.get("Authorization");
 
   if (!authHeader) {
@@ -42,4 +42,4 @@ export default function isAuth(
 
   req.userId = new Types.ObjectId(decodedToken.userId);
   next();
-}
+};
