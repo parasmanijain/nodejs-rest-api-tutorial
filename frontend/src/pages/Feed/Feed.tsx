@@ -1,4 +1,5 @@
 import { FC, FormEvent, Fragment, useEffect, useState } from 'react';
+import openSocket from 'socket.io-client';
 import { Post } from '../../components/Feed/Post/Post';
 import { Button } from '../../components/Button/Button';
 import { FeedEdit } from '../../components/Feed/FeedEdit/FeedEdit';
@@ -58,6 +59,7 @@ export const Feed: FC<FeedProps> = ({ token }) => {
       .catch(catchError);
 
     loadPosts();
+    openSocket('http://localhost:8080');
   }, [token]);
 
   const loadPosts = (direction?: 'next' | 'previous') => {
