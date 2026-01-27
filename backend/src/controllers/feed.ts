@@ -78,6 +78,7 @@ export const createPost = async (
     }
     user.posts.push(post._id);
     await user.save();
+    await post.populate("creator");
     getIO().emit("posts", {
       action: "create",
       post,
@@ -165,6 +166,7 @@ export const updatePost = async (
     post.content = content;
     post.imageUrl = imageUrl;
     const updatedPost = await post.save();
+    await updatedPost.populate("creator");
     getIO().emit("posts", {
       action: "update",
       post: updatedPost,
