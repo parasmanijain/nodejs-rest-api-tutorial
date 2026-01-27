@@ -1,7 +1,13 @@
 import { Router } from "express";
 import { body } from "express-validator";
 import User from "../models/user";
-import { signup, login } from "../controllers/auth";
+import {
+  signup,
+  login,
+  updateUserStatus,
+  getUserStatus,
+} from "../controllers/auth";
+import { isAuth } from "../middleware/is-auth";
 
 export const authRouter = Router();
 
@@ -25,3 +31,12 @@ authRouter.put(
 );
 
 authRouter.post("/login", login);
+
+authRouter.get("/status", isAuth, getUserStatus);
+
+authRouter.patch(
+  "/status",
+  isAuth,
+  [body("status").trim().not().isEmpty()],
+  updateUserStatus,
+);

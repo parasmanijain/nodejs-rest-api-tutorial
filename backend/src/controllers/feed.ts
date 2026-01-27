@@ -7,11 +7,11 @@ import { imagesDir } from "../util/path";
 import Post from "../models/post";
 import User from "../models/user";
 
-export async function getPosts(
+export const getPosts = async (
   req: Request,
   res: Response,
   next: NextFunction,
-): Promise<void> {
+): Promise<void> => {
   try {
     const currentPage = Number(req.query.page) || 1;
     const perPage = 2;
@@ -29,13 +29,13 @@ export async function getPosts(
     error.statusCode ??= 500;
     next(error);
   }
-}
+};
 
-export async function createPost(
+export const createPost = async (
   req: Request,
   res: Response,
   next: NextFunction,
-): Promise<void> {
+): Promise<void> => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -87,13 +87,13 @@ export async function createPost(
     error.statusCode ??= 500;
     next(error);
   }
-}
+};
 
-export async function getPost(
+export const getPost = async (
   req: Request,
   res: Response,
   next: NextFunction,
-): Promise<void> {
+): Promise<void> => {
   try {
     const post = await Post.findById(req.params.postId);
     if (!post) {
@@ -107,13 +107,13 @@ export async function getPost(
     error.statusCode ??= 500;
     next(error);
   }
-}
+};
 
-export async function updatePost(
+export const updatePost = async (
   req: Request,
   res: Response,
   next: NextFunction,
-): Promise<void> {
+): Promise<void> => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -169,13 +169,13 @@ export async function updatePost(
     error.statusCode ??= 500;
     next(error);
   }
-}
+};
 
-export async function deletePost(
+export const deletePost = async (
   req: Request,
   res: Response,
   next: NextFunction,
-): Promise<void> {
+): Promise<void> => {
   try {
     if (!req.userId) {
       const error: HttpError = new Error("Not authenticated.");
@@ -208,7 +208,7 @@ export async function deletePost(
     error.statusCode ??= 500;
     next(error);
   }
-}
+};
 
 const clearImage = (filePath: string): void => {
   const filename = basename(filePath);

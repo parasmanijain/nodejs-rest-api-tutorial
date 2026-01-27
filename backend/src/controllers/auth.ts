@@ -10,11 +10,11 @@ dotenv.config();
 
 const { JWT_SECRET } = process.env;
 
-export async function signup(
+export const signup = async (
   req: Request,
   res: Response,
   next: NextFunction,
-): Promise<void> {
+): Promise<void> => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -44,13 +44,13 @@ export async function signup(
     error.statusCode ??= 500;
     next(error);
   }
-}
+};
 
-export async function login(
+export const login = async (
   req: Request,
   res: Response,
   next: NextFunction,
-): Promise<void> {
+): Promise<void> => {
   try {
     const { email, password } = req.body as {
       email: string;
@@ -87,4 +87,47 @@ export async function login(
     error.statusCode ??= 500;
     next(error);
   }
-}
+};
+
+export const getUserStatus = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const user = await User.findById(req.userId).exec();
+    if (!user) {
+      const error: HttpError = new Error("User not found.");
+      error.statusCode = 404;
+      throw error;
+    }
+    res.status(200).json({ status: user.status });
+  } catch (err) {
+    const error = err as HttpError;
+    error.statusCode ??= 500;
+    next(error);
+  }
+};
+
+export const updateUserStatus = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const { status } = req.body as { status: string };
+    const user = await User.findById(req.userId).exec();
+    if (!user) {
+      const error: HttpError = new Error("User not found.");
+      error.statusCode = 404;
+      throw error;
+    }
+    user.status = status;
+    await user.save();
+    res.status(200).json({ message: "User updated." });
+  } catch (err) {
+    const error = err as HttpError;
+    error.statusCode ??= 500;
+    next(error);
+  }
+};
