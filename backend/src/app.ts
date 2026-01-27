@@ -11,8 +11,8 @@ import { connect } from "mongoose";
 import multer, { diskStorage, type FileFilterCallback } from "multer";
 import { v4 as uuidv4 } from "uuid";
 import { createServer } from "http";
-import { Server as SocketIOServer } from "socket.io";
 import { HttpError } from "./types/http-error";
+import { init as initSocket } from "./socket";
 import { feedRouter } from "./routes/feed";
 import { authRouter } from "./routes/auth";
 import { imagesDir } from "./util/path";
@@ -89,12 +89,7 @@ async function startServer() {
     await connect(MONGO_URI);
     console.log("MongoDB connected");
     const server = createServer(app);
-    const io = new SocketIOServer(server, {
-      cors: {
-        origin: "*",
-        methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-      },
-    });
+    const io = initSocket(server);
     io.on("connection", (socket) => {
       console.log("Client connected:", socket.id);
     });

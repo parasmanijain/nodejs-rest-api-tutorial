@@ -3,6 +3,7 @@ import { validationResult } from "express-validator";
 import { unlink } from "fs";
 import { basename, join, posix } from "path";
 import { HttpError } from "../types/http-error";
+import { getIO } from "../socket";
 import { imagesDir } from "../util/path";
 import Post from "../models/post";
 import User from "../models/user";
@@ -68,7 +69,6 @@ export const createPost = async (
       imageUrl,
       creator: req.userId,
     });
-
     await post.save();
     const user = await User.findById(req.userId);
     if (!user) {
@@ -78,6 +78,10 @@ export const createPost = async (
     }
     user.posts.push(post._id);
     await user.save();
+    getIO().emit("posts", {
+      action: "create",
+      post,
+    });
     res.status(201).json({
       message: "Post created successfully!",
       post,
@@ -161,6 +165,10 @@ export const updatePost = async (
     post.content = content;
     post.imageUrl = imageUrl;
     const updatedPost = await post.save();
+    getIO().emit("posts", {
+      action: "update",
+      post: updatedPost,
+    });
     res.status(200).json({
       message: "Post updated!",
       post: updatedPost,
@@ -203,6 +211,10 @@ export const deletePost = async (
       );
       await user.save();
     }
+    getIO().emit("posts", {
+      action: "delete",
+      postId: post._id,
+    });
     res.status(200).json({ message: "Deleted post." });
   } catch (err) {
     const error = err as HttpError;
