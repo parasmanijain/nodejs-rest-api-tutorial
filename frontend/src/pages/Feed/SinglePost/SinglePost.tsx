@@ -8,35 +8,48 @@ export interface SinglePostProps {
   token: string | null;
 }
 
-export const SinglePost: FC<SinglePostProps> = ({ token, userId }) => {
+interface PostResponse {
+  post: {
+    title: string;
+    creator: { name: string };
+    imageUrl: string;
+    createdAt: string;
+    content: string;
+  };
+}
+
+export const SinglePost: FC<SinglePostProps> = ({ token }) => {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [date, setDate] = useState("");
   const [image, setImage] = useState("");
   const [content, setContent] = useState("");
-  const { postId } = useParams();
+  const { postId } = useParams<{ postId: string }>();
   useEffect(() => {
-    fetch("http://localhost:8080/feed/post/" + postId, {
-      headers: {
-        Authorization: "Bearer " + (token ?? "")
-      }
-    })
-      .then((res) => {
+    if (!postId) return;
+    const fetchPost = async () => {
+      try {
+        const res = await fetch(`http://localhost:8080/feed/post/${postId}`, {
+          headers: {
+            Authorization: "Bearer " + (token ?? "")
+          }
+        });
         if (res.status !== 200) {
           throw new Error("Failed to fetch status");
         }
-        return res.json();
-      })
-      .then((resData) => {
-        setTitle(resData.post.title);
-        setAuthor(resData.post.creator.name);
-        setImage("http://localhost:8080/" + resData.post.imageUrl);
-        setDate(new Date(resData.post.createdAt).toLocaleDateString("en-US"));
-        setContent(resData.post.content);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+        const data: PostResponse = await res.json();
+        setTitle(data.post.title);
+        setAuthor(data.post.creator.name);
+        setImage(`http://localhost:8080/${data.post.imageUrl}`);
+        setDate(
+          new Date(data.post.createdAt).toLocaleDateString("en-US")
+        );
+        setContent(data.post.content);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchPost();
   }, [postId, token]);
 
   return (
