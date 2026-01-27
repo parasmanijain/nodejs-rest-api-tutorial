@@ -7,7 +7,6 @@ import { Image } from "../../Image/Image";
 import { required, length, fileRequired } from "../../../util/validators";
 import { generateBase64FromImage } from "../../../util/image";
 
-/* ---------------- Types ---------------- */
 
 type Validator<T = unknown> = (value: T) => boolean;
 
@@ -63,8 +62,6 @@ const POST_FORM: PostForm = {
   },
 };
 
-/* ---------------- Component ---------------- */
-
 export const FeedEdit: FC<FeedEditProps> = ({
   editing,
   selectedPost,
@@ -81,7 +78,6 @@ export const FeedEdit: FC<FeedEditProps> = ({
     selectedPost
   );
 
-  /* ---------- Sync edit state ---------- */
   useEffect(() => {
     const prevEditing = prevEditingRef.current;
     const prevSelectedPost = prevSelectedPostRef.current;
@@ -104,7 +100,6 @@ export const FeedEdit: FC<FeedEditProps> = ({
     prevSelectedPostRef.current = selectedPost;
   }, [editing, selectedPost]);
 
-  /* ---------- Input handler ---------- */
   const postInputChangeHandler = (
     id: string,
     value: string,

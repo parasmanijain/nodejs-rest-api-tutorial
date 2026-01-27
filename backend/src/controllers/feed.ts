@@ -1,10 +1,13 @@
 import type { Request, Response, NextFunction } from "express";
 import { validationResult } from "express-validator";
 import { unlink } from "fs";
-import { join } from "path";
+// CHANGE: Use basename and posix.join to store web-friendly (forward-slash) relative paths
+import { basename, join, posix } from "path";
 import { HttpError } from "../types/http-error";
 import Post from "../models/post";
 import User from "../models/user";
+// CHANGE: Use imagesDir for resolving actual file system locations
+import { imagesDir } from "../util/path";
 
 export async function getPosts(
   req: Request,
@@ -62,10 +65,13 @@ export async function createPost(
       content: string;
     };
 
+    // CHANGE: Store relative web path "images/<filename>" (forward slashes)
+    const imageUrl = posix.join("images", req.file.filename);
+
     const post = new Post({
       title,
       content,
-      imageUrl: req.file.path,
+      imageUrl,
       creator: req.userId,
     });
 
@@ -145,8 +151,9 @@ export async function updatePost(
     };
 
     let imageUrl: string | undefined = req.body.image;
+    // CHANGE: If a new file is uploaded, set relative "images/<filename>"
     if (req.file) {
-      imageUrl = req.file.path;
+      imageUrl = posix.join("images", req.file.filename);
     }
 
     if (!imageUrl) {
@@ -231,8 +238,10 @@ export async function deletePost(
   }
 }
 
+// CHANGE: Resolve deletion path against imagesDir (handles dev/prod)
 const clearImage = (filePath: string): void => {
-  const absolutePath = join(__dirname, "..", filePath);
+  const filename = basename(filePath);
+  const absolutePath = join(imagesDir, filename);
   unlink(absolutePath, (err) => {
     if (err) console.error(err);
   });

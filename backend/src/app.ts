@@ -1,5 +1,4 @@
 import dotenv from "dotenv";
-import { resolve } from "path";
 import { mkdirSync } from "fs";
 import express, {
   json,
@@ -13,6 +12,7 @@ import multer, { diskStorage, type FileFilterCallback } from "multer";
 import { HttpError } from "./types/http-error";
 import feedRoutes from "./routes/feed";
 import authRoutes from "./routes/auth";
+import { imagesDir } from "./util/path";
 
 dotenv.config();
 
@@ -30,12 +30,13 @@ if (!MONGODB_USER || !MONGODB_PASSWORD || !MONGODB_HOST || !MONGODB_DATABASE) {
 
 const app = express();
 const MONGO_URI = `mongodb+srv://${MONGODB_USER}:${MONGODB_PASSWORD}@${MONGODB_HOST}/${MONGODB_DATABASE}?retryWrites=true&w=majority`;
-const UPLOAD_DIR = resolve(process.cwd(), "images");
-mkdirSync(UPLOAD_DIR, { recursive: true });
+
+// CHANGE: Ensure imagesDir exists and use it for uploads and static serving
+mkdirSync(imagesDir, { recursive: true });
 
 const fileStorage = diskStorage({
   destination: (_req, _file, cb) => {
-    cb(null, UPLOAD_DIR);
+    cb(null, imagesDir);
   },
   filename: (_req, file, cb) => {
     cb(null, new Date().toISOString() + "-" + file.originalname);
@@ -54,7 +55,8 @@ const fileFilter = (
 app.use(json());
 app.use(multer({ storage: fileStorage, fileFilter }).single("image"));
 
-app.use("/images", expressStatic(UPLOAD_DIR));
+// CHANGE: Serve images from imagesDir under /images
+app.use("/images", expressStatic(imagesDir));
 
 app.use((_req: Request, res: Response, next: NextFunction) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
