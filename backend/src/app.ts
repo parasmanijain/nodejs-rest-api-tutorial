@@ -11,10 +11,12 @@ import { connect } from "mongoose";
 import multer, { diskStorage, type FileFilterCallback } from "multer";
 import { v4 as uuidv4 } from "uuid";
 import { graphqlHTTP } from "express-graphql";
-import graphqlSchema from "./graphql/schema";
-import { createUser } from "./graphql/resolvers";
 import { HttpError } from "./types/http-error";
 import { imagesDir } from "./util/path";
+import graphqlSchema from "./graphql/schema";
+import { createUser } from "./graphql/resolvers";
+import auth from "./middleware/auth";
+import { clearImage } from "./util/file";
 
 dotenv.config();
 
@@ -68,12 +70,43 @@ app.use((_req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
+app.use(auth);
+
+app.put("/post-image", (req, res, next) => {
+  if (!req.isAuth) {
+    throw new Error("Not authenticated!");
+  }
+  if (!req.file) {
+    return res.status(200).json({ message: "No file provided!" });
+  }
+  if (req.body.oldPath) {
+    clearImage(req.body.oldPath);
+  }
+  return res
+    .status(201)
+    .json({ message: "File stored.", filePath: req.file.path });
+});
+
 app.use(
   "/graphql",
   graphqlHTTP({
     schema: graphqlSchema,
     rootValue: createUser,
     graphiql: true,
+    formatError(err) {
+      if (!err.originalError) {
+        return err;
+      }
+      const originalError = err.originalError as HttpError;
+      const data = originalError.data;
+      const message = err.message || "An error occurred.";
+      const status = originalError.statusCode || 500;
+      return {
+        message,
+        status,
+        data,
+      };
+    },
   }),
 );
 
