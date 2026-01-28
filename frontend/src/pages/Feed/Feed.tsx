@@ -270,6 +270,9 @@ export const Feed: FC<FeedProps> = ({ token }) => {
         }
         return updated;
       });
+      if (!editPost) {
+        setTotalPosts((prev) => prev + 1);
+      }
       setIsEditing(false);
       setEditPost(null);
     } catch (err) {
@@ -302,6 +305,7 @@ export const Feed: FC<FeedProps> = ({ token }) => {
         throw new Error("Deleting a post failed!");
       }
       setPosts((prev) => prev.filter((p) => p._id !== postId));
+      setTotalPosts((prev) => (prev > 0 ? prev - 1 : 0));
     } catch (err) {
       catchError(err);
     } finally {
