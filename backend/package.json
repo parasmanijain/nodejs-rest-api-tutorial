@@ -8,7 +8,7 @@
     "clean": "rimraf dist && rimraf data",
     "build": "npm run clean && tsc && cp -r src/images dist/images 2>/dev/null || mkdir -p dist/images",
     "watch": "tsc --watch",
-    "watch:images": "chokidar 'src/images/**/*' -c 'cp -r src/images dist/images'",
+    "watch:images": "chokidar 'src/images/**/*' -c 'rsync -a --delete src/images/ dist/images/'",
     "watch:public": "chokidar 'src/public/**/*' -c 'cp -r src/public dist/public'",
     "dev": "npm run build && concurrently \"npm:watch\" \"npm:watch:images\" \"npm:watch:public\" \"nodemon dist/app.js\"",
     "start": "cross-env NODE_ENV=production node dist/app.js"
@@ -33,7 +33,6 @@
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.1.5",
     "multer": "^2.0.2",
-    "sass": "^1.97.3",
     "socket.io": "^4.8.3",
     "uuid": "^13.0.0"
   }
