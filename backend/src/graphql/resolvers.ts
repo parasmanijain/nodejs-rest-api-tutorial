@@ -6,75 +6,18 @@ import { Request } from "express";
 import User from "../models/user";
 import Post from "../models/post";
 import { clearImage } from "../util/file";
-
-interface UserResponse {
-  _id: string;
-  email: string;
-  name: string;
-  status: string;
-  posts: string[];
-}
-
-interface PostResponse {
-  _id: string;
-  title: string;
-  content: string;
-  imageUrl: string;
-  creator: UserResponse | string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface UserInputData {
-  email: string;
-  name: string;
-  password: string;
-}
-
-interface PostInputData {
-  title: string;
-  content: string;
-  imageUrl: string;
-}
-
-interface CreateUserArgs {
-  userInput: UserInputData;
-}
-
-interface CreatePostArgs {
-  postInput: PostInputData;
-}
-
-interface UpdatePostArgs {
-  id: string;
-  postInput: PostInputData;
-}
-
-interface DeletePostArgs {
-  id: string;
-}
-
-interface LoginArgs {
-  email: string;
-  password: string;
-}
-
-interface PostsArgs {
-  page?: number;
-}
-
-interface PostArgs {
-  id: string;
-}
-
-interface UpdateStatusArgs {
-  status: string;
-}
-
-interface AuthData {
-  token: string;
-  userId: string;
-}
+import {
+  AuthData,
+  CreatePostArgs,
+  CreateUserArgs,
+  DeletePostArgs,
+  LoginArgs,
+  PostResponse,
+  PostsArgs,
+  UpdatePostArgs,
+  UpdateStatusArgs,
+  UserResponse,
+} from ".";
 
 dotenv.config();
 
