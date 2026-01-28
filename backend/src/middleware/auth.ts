@@ -1,9 +1,18 @@
+import dotenv from "dotenv";
 import { NextFunction, Request, Response } from "express";
 import { verify } from "jsonwebtoken";
 import { Types } from "mongoose";
 
 interface AuthTokenPayload {
   userId: string;
+}
+
+dotenv.config();
+
+const { JWT_SECRET } = process.env;
+
+if (!JWT_SECRET) {
+  throw new Error("Missing JWT secret");
 }
 
 export default (req: Request, _res: Response, next: NextFunction) => {
@@ -19,7 +28,7 @@ export default (req: Request, _res: Response, next: NextFunction) => {
   let decodedToken: AuthTokenPayload;
 
   try {
-    decodedToken = verify(token, "somesupersecretsecret") as AuthTokenPayload;
+    decodedToken = verify(token, JWT_SECRET) as AuthTokenPayload;
   } catch {
     req.isAuth = false;
     return next();

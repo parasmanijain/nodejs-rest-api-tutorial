@@ -1,3 +1,4 @@
+import dotenv from "dotenv";
 import { hash, compare } from "bcryptjs";
 import { isEmail, isEmpty, isLength } from "validator";
 import { sign } from "jsonwebtoken";
@@ -75,6 +76,14 @@ interface AuthData {
   userId: string;
 }
 
+dotenv.config();
+
+const { JWT_SECRET } = process.env;
+
+if (!JWT_SECRET) {
+  throw new Error("Missing JWT secret");
+}
+
 const createUser = async (
   { userInput }: CreateUserArgs,
   _req: Request,
@@ -140,7 +149,7 @@ const login = async ({ email, password }: LoginArgs): Promise<AuthData> => {
 
   const token = sign(
     { userId: user._id.toString(), email: user.email },
-    process.env.JWT_SECRET || "somesupersecretsecret",
+    JWT_SECRET,
     { expiresIn: "1h" },
   );
 
