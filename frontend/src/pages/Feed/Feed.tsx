@@ -46,20 +46,35 @@ export const Feed: FC<FeedProps> = ({ token }) => {
     if (!token) return;
     const fetchStatus = async () => {
       try {
-        const res = await fetch(`${API_URL}/auth/status`, {
-          headers: { Authorization: "Bearer " + token },
+        const graphqlQuery = {
+          query: `
+            {
+              user {
+                status
+              }
+            }
+          `,
+        };
+        const res = await fetch(`${API_URL}/graphql`, {
+          method: "POST",
+          headers: {
+            Authorization: "Bearer " + token,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(graphqlQuery),
         });
-        if (res.status !== 200) {
+        const resData = await res.json();
+        if (resData.errors) {
           throw new Error("Failed to fetch user status.");
         }
-        const data: { status: string } = await res.json();
-        setStatus(data.status);
+        setStatus(resData.data.user.status);
       } catch (err) {
         catchError(err);
       }
     };
     fetchStatus();
     loadPosts();
+    // eslint-disable-next-line
   }, [token]);
 
   const loadPosts = async (direction?: "next" | "previous") => {
@@ -69,15 +84,40 @@ export const Feed: FC<FeedProps> = ({ token }) => {
       if (direction === "next") page++;
       if (direction === "previous") page--;
       setPostPage(page);
-      const res = await fetch(`${API_URL}/feed/posts?page=${page}`, {
-        headers: { Authorization: "Bearer " + (token ?? "") },
+      const graphqlQuery = {
+        query: `
+          query FetchPosts($page: Int) {
+            posts(page: $page) {
+              posts {
+                _id
+                title
+                content
+                imageUrl
+                creator {
+                  name
+                }
+                createdAt
+              }
+              totalPosts
+            }
+          }
+        `,
+        variables: { page },
+      };
+      const res = await fetch(`${API_URL}/graphql`, {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer " + (token ?? ""),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(graphqlQuery),
       });
-      if (res.status !== 200) {
+      const resData = await res.json();
+      if (resData.errors) {
         throw new Error("Failed to fetch posts.");
       }
-      const data: { posts: FeedPost[]; totalItems: number } = await res.json();
-      setPosts(data.posts);
-      setTotalPosts(data.totalItems);
+      setPosts(resData.data.posts.posts);
+      setTotalPosts(resData.data.posts.totalPosts);
     } catch (err) {
       catchError(err);
     } finally {
@@ -88,18 +128,28 @@ export const Feed: FC<FeedProps> = ({ token }) => {
   const statusUpdateHandler = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-      const res = await fetch(`${API_URL}/auth/status`, {
-        method: "PATCH",
+      const graphqlQuery = {
+        query: `
+          mutation UpdateUserStatus($userStatus: String!) {
+            updateStatus(status: $userStatus) {
+              status
+            }
+          }
+        `,
+        variables: { userStatus: status },
+      };
+      const res = await fetch(`${API_URL}/graphql`, {
+        method: "POST",
         headers: {
           Authorization: "Bearer " + (token ?? ""),
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify(graphqlQuery),
       });
-      if (res.status !== 200 && res.status !== 201) {
+      const resData = await res.json();
+      if (resData.errors) {
         throw new Error("Can't update status!");
       }
-      await res.json();
     } catch (err) {
       catchError(err);
     }
@@ -126,34 +176,97 @@ export const Feed: FC<FeedProps> = ({ token }) => {
   }) => {
     try {
       setEditLoading(true);
-      const formData = new FormData();
-      formData.append("title", postData.title);
-      formData.append("content", postData.content);
-      formData.append("image", postData.image as Blob | string);
-      let url = `${API_URL}/feed/post`;
-      let method: "POST" | "PUT" = "POST";
-      if (editPost) {
-        url = `${API_URL}/feed/post/${editPost._id}`;
-        method = "PUT";
+
+      // Step 1: Upload image if it's a File
+      let imageUrl = typeof postData.image === "string" ? postData.image : "";
+      if (postData.image instanceof File) {
+        const formData = new FormData();
+        formData.append("image", postData.image);
+        if (editPost && editPost.imageUrl) {
+          formData.append("oldPath", editPost.imageUrl);
+        }
+        const imageRes = await fetch(`${API_URL}/post-image`, {
+          method: "PUT",
+          headers: {
+            Authorization: "Bearer " + (token ?? ""),
+          },
+          body: formData,
+        });
+        const imageData = await imageRes.json();
+        imageUrl = imageData.filePath || "";
       }
-      const res = await fetch(url, {
-        method,
-        body: formData,
+
+      // Step 2: Create or update post via GraphQL
+      let graphqlQuery;
+      if (editPost) {
+        graphqlQuery = {
+          query: `
+            mutation UpdateExistingPost($postId: ID!, $title: String!, $content: String!, $imageUrl: String!) {
+              updatePost(id: $postId, postInput: {title: $title, content: $content, imageUrl: $imageUrl}) {
+                _id
+                title
+                content
+                imageUrl
+                creator {
+                  name
+                }
+                createdAt
+              }
+            }
+          `,
+          variables: {
+            postId: editPost._id,
+            title: postData.title,
+            content: postData.content,
+            imageUrl,
+          },
+        };
+      } else {
+        graphqlQuery = {
+          query: `
+            mutation CreateNewPost($title: String!, $content: String!, $imageUrl: String!) {
+              createPost(postInput: {title: $title, content: $content, imageUrl: $imageUrl}) {
+                _id
+                title
+                content
+                imageUrl
+                creator {
+                  name
+                }
+                createdAt
+              }
+            }
+          `,
+          variables: {
+            title: postData.title,
+            content: postData.content,
+            imageUrl,
+          },
+        };
+      }
+      const res = await fetch(`${API_URL}/graphql`, {
+        method: "POST",
         headers: {
           Authorization: "Bearer " + (token ?? ""),
+          "Content-Type": "application/json",
         },
+        body: JSON.stringify(graphqlQuery),
       });
-      if (res.status !== 200 && res.status !== 201) {
-        throw new Error("Creating or editing a post failed!");
+      const resData = await res.json();
+      if (resData.errors) {
+        throw new Error(
+          resData.errors[0]?.message || "Creating or editing a post failed!",
+        );
       }
-      const data: { post: FeedPost } = await res.json();
+      const post = editPost ? resData.data.updatePost : resData.data.createPost;
       setPosts((prev) => {
         const updated = [...prev];
         if (editPost) {
           const index = updated.findIndex((p) => p._id === editPost._id);
-          if (index > -1) updated[index] = data.post;
-        } else if (prev.length < 2) {
-          updated.push(data.post);
+          if (index > -1) updated[index] = post;
+        } else {
+          if (prev.length >= 2) updated.pop();
+          updated.unshift(post);
         }
         return updated;
       });
@@ -169,16 +282,25 @@ export const Feed: FC<FeedProps> = ({ token }) => {
   const deletePostHandler = async (postId: string) => {
     try {
       setPostsLoading(true);
-      const res = await fetch(`${API_URL}/feed/post/${postId}`, {
-        method: "DELETE",
+      const graphqlQuery = {
+        query: `
+          mutation {
+            deletePost(id: "${postId}")
+          }
+        `,
+      };
+      const res = await fetch(`${API_URL}/graphql`, {
+        method: "POST",
         headers: {
           Authorization: "Bearer " + (token ?? ""),
+          "Content-Type": "application/json",
         },
+        body: JSON.stringify(graphqlQuery),
       });
-      if (res.status !== 200 && res.status !== 201) {
+      const resData = await res.json();
+      if (resData.errors) {
         throw new Error("Deleting a post failed!");
       }
-      await res.json();
       setPosts((prev) => prev.filter((p) => p._id !== postId));
     } catch (err) {
       catchError(err);

@@ -9,6 +9,7 @@ declare global {
       isLoggedIn?: boolean;
       file?: Multer.File;
       userId?: Types.ObjectId;
+      isAuth?: boolean;
     }
   }
 }

@@ -75,10 +75,10 @@ interface AuthData {
   userId: string;
 }
 
-export async function createUser(
+const createUser = async (
   { userInput }: CreateUserArgs,
   _req: Request,
-): Promise<UserResponse> {
+): Promise<UserResponse> => {
   const errors: { message: string }[] = [];
 
   if (!isEmail(userInput.email)) {
@@ -121,9 +121,9 @@ export async function createUser(
     status: user.status,
     posts: [],
   };
-}
+};
 
-export async function login({ email, password }: LoginArgs): Promise<AuthData> {
+const login = async ({ email, password }: LoginArgs): Promise<AuthData> => {
   const user = await User.findOne({ email });
   if (!user) {
     const error: any = new Error("User not found.");
@@ -145,12 +145,12 @@ export async function login({ email, password }: LoginArgs): Promise<AuthData> {
   );
 
   return { token, userId: user._id.toString() };
-}
+};
 
-export async function createPost(
+const createPost = async (
   { postInput }: CreatePostArgs,
   req: Request,
-): Promise<PostResponse> {
+): Promise<PostResponse> => {
   if (!req.isAuth || !req.userId) {
     const error: any = new Error("Not authenticated!");
     error.code = 401;
@@ -200,12 +200,12 @@ export async function createPost(
     createdAt: post.createdAt.toISOString(),
     updatedAt: post.updatedAt.toISOString(),
   };
-}
+};
 
-export async function posts(
+const posts = async (
   { page = 1 }: PostsArgs,
   req: Request,
-): Promise<{ posts: PostResponse[]; totalPosts: number }> {
+): Promise<{ posts: PostResponse[]; totalPosts: number }> => {
   if (!req.isAuth) {
     const error: any = new Error("Not authenticated!");
     error.code = 401;
@@ -239,12 +239,48 @@ export async function posts(
     })),
     totalPosts,
   };
-}
+};
 
-export async function deletePost(
+const post = async (
+  { id }: { id: string },
+  req: Request,
+): Promise<PostResponse> => {
+  if (!req.isAuth) {
+    const error: any = new Error("Not authenticated!");
+    error.code = 401;
+    throw error;
+  }
+
+  const fetchedPost = await Post.findById(id).populate("creator");
+  if (!fetchedPost) {
+    const error: any = new Error("No post found!");
+    error.code = 404;
+    throw error;
+  }
+
+  const creator = fetchedPost.creator as any;
+
+  return {
+    _id: fetchedPost._id.toString(),
+    title: fetchedPost.title,
+    content: fetchedPost.content,
+    imageUrl: fetchedPost.imageUrl,
+    creator: {
+      _id: creator._id.toString(),
+      name: creator.name,
+      email: creator.email,
+      status: creator.status,
+      posts: creator.posts.map((p: any) => p.toString()),
+    },
+    createdAt: fetchedPost.createdAt.toISOString(),
+    updatedAt: fetchedPost.updatedAt.toISOString(),
+  };
+};
+
+const deletePost = async (
   { id }: DeletePostArgs,
   req: Request,
-): Promise<boolean> {
+): Promise<boolean> => {
   if (!req.isAuth || !req.userId) {
     const error: any = new Error("Not authenticated!");
     error.code = 401;
@@ -274,12 +310,9 @@ export async function deletePost(
   }
 
   return true;
-}
+};
 
-export async function user(
-  _args: unknown,
-  req: Request,
-): Promise<UserResponse> {
+const user = async (_args: unknown, req: Request): Promise<UserResponse> => {
   if (!req.isAuth || !req.userId) {
     const error: any = new Error("Not authenticated!");
     error.code = 401;
@@ -300,12 +333,12 @@ export async function user(
     status: user.status,
     posts: user.posts.map((p) => p.toString()),
   };
-}
+};
 
-export async function updateStatus(
+const updateStatus = async (
   { status }: UpdateStatusArgs,
   req: Request,
-): Promise<UserResponse> {
+): Promise<UserResponse> => {
   if (!req.isAuth || !req.userId) {
     const error: any = new Error("Not authenticated!");
     error.code = 401;
@@ -329,4 +362,82 @@ export async function updateStatus(
     status: user.status,
     posts: user.posts.map((p) => p.toString()),
   };
-}
+};
+
+const updatePost = async (
+  { id, postInput }: UpdatePostArgs,
+  req: Request,
+): Promise<PostResponse> => {
+  if (!req.isAuth || !req.userId) {
+    const error: any = new Error("Not authenticated!");
+    error.code = 401;
+    throw error;
+  }
+
+  if (
+    isEmpty(postInput.title) ||
+    !isLength(postInput.title, { min: 5 }) ||
+    isEmpty(postInput.content) ||
+    !isLength(postInput.content, { min: 5 })
+  ) {
+    const error: any = new Error("Invalid input.");
+    error.code = 422;
+    throw error;
+  }
+
+  const post = await Post.findById(id).populate("creator");
+  if (!post) {
+    const error: any = new Error("No post found!");
+    error.code = 404;
+    throw error;
+  }
+
+  if (post.creator._id.toString() !== req.userId.toString()) {
+    const error: any = new Error("Not authorized!");
+    error.code = 403;
+    throw error;
+  }
+
+  // optional: delete old image if changed
+  if (postInput.imageUrl !== post.imageUrl) {
+    clearImage(post.imageUrl);
+  }
+
+  post.title = postInput.title;
+  post.content = postInput.content;
+  post.imageUrl = postInput.imageUrl;
+
+  const updatedPost = await post.save();
+
+  const creator = updatedPost.creator as any;
+
+  return {
+    _id: updatedPost._id.toString(),
+    title: updatedPost.title,
+    content: updatedPost.content,
+    imageUrl: updatedPost.imageUrl,
+    creator: {
+      _id: creator._id.toString(),
+      name: creator.name,
+      email: creator.email,
+      status: creator.status,
+      posts: creator.posts.map((p: any) => p.toString()),
+    },
+    createdAt: updatedPost.createdAt.toISOString(),
+    updatedAt: updatedPost.updatedAt.toISOString(),
+  };
+};
+
+export default {
+  // RootQuery
+  login,
+  posts,
+  user,
+  post,
+  // RootMutation
+  createUser,
+  createPost,
+  updatePost,
+  deletePost,
+  updateStatus,
+};

@@ -5,7 +5,7 @@ export interface IUser extends Document {
   password: string;
   name: string;
   status: string;
-  posts: Types.ObjectId[];
+  posts: Types.Array<Types.ObjectId>;
 }
 
 const userSchema = new Schema<IUser>({

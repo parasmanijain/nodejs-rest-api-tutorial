@@ -14,7 +14,7 @@ import { graphqlHTTP } from "express-graphql";
 import { HttpError } from "./types/http-error";
 import { imagesDir } from "./util/path";
 import graphqlSchema from "./graphql/schema";
-import { createUser } from "./graphql/resolvers";
+import resolvers from "./graphql/resolvers";
 import auth from "./middleware/auth";
 import { clearImage } from "./util/file";
 
@@ -60,13 +60,16 @@ app.use(multer({ storage: fileStorage, fileFilter }).single("image"));
 
 app.use("/images", expressStatic(imagesDir));
 
-app.use((_req: Request, res: Response, next: NextFunction) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
     "Access-Control-Allow-Methods",
     "OPTIONS, GET, POST, PUT, PATCH, DELETE",
   );
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
   next();
 });
 
@@ -91,7 +94,7 @@ app.use(
   "/graphql",
   graphqlHTTP({
     schema: graphqlSchema,
-    rootValue: createUser,
+    rootValue: resolvers,
     graphiql: true,
     formatError(err) {
       if (!err.originalError) {
