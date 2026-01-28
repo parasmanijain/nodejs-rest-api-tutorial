@@ -75,7 +75,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 app.use(auth);
 
-app.put("/post-image", (req, res, next) => {
+app.put("/post-image", (req, res) => {
   if (!req.isAuth) {
     throw new Error("Not authenticated!");
   }
@@ -85,9 +85,10 @@ app.put("/post-image", (req, res, next) => {
   if (req.body.oldPath) {
     clearImage(req.body.oldPath);
   }
-  return res
-    .status(201)
-    .json({ message: "File stored.", filePath: req.file.path });
+  return res.status(201).json({
+    message: "File stored.",
+    filePath: `images/${req.file.filename}`,
+  });
 });
 
 app.use(

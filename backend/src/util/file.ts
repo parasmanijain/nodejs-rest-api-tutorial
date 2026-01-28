@@ -1,7 +1,14 @@
 import { join } from "path";
 import { unlink } from "fs";
+import { imagesDir } from "./path";
 
 export const clearImage = (filePath: string) => {
-  filePath = join(__dirname, "..", filePath);
-  unlink(filePath, (err) => console.log(err));
+  const fileName = filePath.replace(/^images\//, "");
+  const absolutePath = join(imagesDir, fileName);
+
+  unlink(absolutePath, (err) => {
+    if (err) {
+      console.error("Failed to delete image:", err.message);
+    }
+  });
 };
