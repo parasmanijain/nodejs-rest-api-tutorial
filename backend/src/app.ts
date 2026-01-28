@@ -10,11 +10,10 @@ import express, {
 import { connect } from "mongoose";
 import multer, { diskStorage, type FileFilterCallback } from "multer";
 import { v4 as uuidv4 } from "uuid";
-import { createServer } from "http";
+import { graphqlHTTP } from "express-graphql";
+import graphqlSchema from "./graphql/schema";
+import { createUser } from "./graphql/resolvers";
 import { HttpError } from "./types/http-error";
-import { init as initSocket } from "./socket";
-import { feedRouter } from "./routes/feed";
-import { authRouter } from "./routes/auth";
 import { imagesDir } from "./util/path";
 
 dotenv.config();
@@ -34,7 +33,6 @@ if (!MONGODB_USER || !MONGODB_PASSWORD || !MONGODB_HOST || !MONGODB_DATABASE) {
 const app = express();
 const MONGO_URI = `mongodb+srv://${MONGODB_USER}:${MONGODB_PASSWORD}@${MONGODB_HOST}/${MONGODB_DATABASE}?retryWrites=true&w=majority`;
 
-// CHANGE: Ensure imagesDir exists and use it for uploads and static serving
 mkdirSync(imagesDir, { recursive: true });
 
 const fileStorage = diskStorage({
@@ -58,7 +56,6 @@ const fileFilter = (
 app.use(json());
 app.use(multer({ storage: fileStorage, fileFilter }).single("image"));
 
-// CHANGE: Serve images from imagesDir under /images
 app.use("/images", expressStatic(imagesDir));
 
 app.use((_req: Request, res: Response, next: NextFunction) => {
@@ -71,8 +68,14 @@ app.use((_req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-app.use("/auth", authRouter);
-app.use("/feed", feedRouter);
+app.use(
+  "/graphql",
+  graphqlHTTP({
+    schema: graphqlSchema,
+    rootValue: createUser,
+    graphiql: true,
+  }),
+);
 
 app.use(
   (error: HttpError, _req: Request, res: Response, _next: NextFunction) => {
@@ -88,12 +91,7 @@ async function startServer() {
   try {
     await connect(MONGO_URI);
     console.log("MongoDB connected");
-    const server = createServer(app);
-    const io = initSocket(server);
-    io.on("connection", (socket) => {
-      console.log("Client connected:", socket.id);
-    });
-    server.listen(Number(PORT), () => {
+    app.listen(Number(PORT), () => {
       console.log(`Server running on port ${PORT}`);
     });
   } catch (err) {

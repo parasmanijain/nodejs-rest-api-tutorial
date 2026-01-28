@@ -1,5 +1,4 @@
 import { FC, FormEvent, Fragment, useEffect, useState } from "react";
-import openSocket from "socket.io-client";
 import { Post } from "../../components/Feed/Post/Post";
 import { Button } from "../../components/Button/Button";
 import { FeedEdit } from "../../components/Feed/FeedEdit/FeedEdit";
@@ -61,41 +60,7 @@ export const Feed: FC<FeedProps> = ({ token }) => {
     };
     fetchStatus();
     loadPosts();
-    const socket = openSocket(API_URL);
-    socket.on("posts", (data: { action: string; post: FeedPost }) => {
-      if (data.action === "create") addPost(data.post);
-      if (data.action === "update") updatePost(data.post);
-      if (data.action === "delete") loadPosts();
-    });
-
-    return () => {
-      socket.disconnect();
-    };
   }, [token]);
-
-  const addPost = (post: FeedPost) => {
-    setPosts((prevPosts) => {
-      if (postPage !== 1) return prevPosts;
-      const updated = [...prevPosts];
-      if (updated.length >= 2) {
-        updated.pop();
-      }
-      updated.unshift(post);
-      return updated;
-    });
-    setTotalPosts((prev) => prev + 1);
-  };
-
-  const updatePost = (post: FeedPost) => {
-    setPosts((prevPosts) => {
-      const updated = [...prevPosts];
-      const index = updated.findIndex((p) => p._id === post._id);
-      if (index > -1) {
-        updated[index] = post;
-      }
-      return updated;
-    });
-  };
 
   const loadPosts = async (direction?: "next" | "previous") => {
     try {
