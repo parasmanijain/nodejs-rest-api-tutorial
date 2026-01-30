@@ -8,36 +8,38 @@ import { getUserStatus, login } from "../controllers/auth";
 
 dotenv.config();
 
-const { MONGODB_USER, MONGODB_PASSWORD, MONGODB_HOST, MONGODB_DATABASE } =
+const { MONGODB_USER, MONGODB_PASSWORD, MONGODB_HOST, MONGODB_TEST_DATABASE } =
   process.env;
 
-if (!MONGODB_USER || !MONGODB_PASSWORD || !MONGODB_HOST || !MONGODB_DATABASE) {
+if (
+  !MONGODB_USER ||
+  !MONGODB_PASSWORD ||
+  !MONGODB_HOST ||
+  !MONGODB_TEST_DATABASE
+) {
   throw new Error("Missing MongoDB environment variables");
 }
 
-const MONGO_URI = `mongodb+srv://${MONGODB_USER}:${MONGODB_PASSWORD}@${MONGODB_HOST}/${MONGODB_DATABASE}?retryWrites=true&w=majority`;
+const MONGO_URI = `mongodb+srv://${MONGODB_USER}:${MONGODB_PASSWORD}@${MONGODB_HOST}/${MONGODB_TEST_DATABASE}?retryWrites=true&w=majority`;
 
 describe("Auth Controller", () => {
-  before((done) => {
-    connect(MONGO_URI)
-      .then(() => {
-        const user = new User({
-          email: "test@test.com",
-          password: "tester",
-          name: "Test",
-          posts: [],
-          _id: new Types.ObjectId("5c0f66b979af55031b34728a"),
-        });
-        return user.save();
-      })
-      .then(() => done());
+  before(async function () {
+    await connect(MONGO_URI);
+    const user = new User({
+      email: "test@test.com",
+      password: "tester",
+      name: "Test",
+      posts: [],
+      _id: new Types.ObjectId("5c0f66b979af55031b34728a"),
+    });
+    await user.save();
   });
 
   beforeEach(() => {});
 
   afterEach(() => {});
 
-  it("should throw an error with code 500 if accessing the database fails", (done) => {
+  it("should throw an error with code 500 if accessing the database fails", function (done) {
     const stub = sinon.stub(User, "findOne");
     stub.throws();
     const req = {
@@ -62,13 +64,11 @@ describe("Auth Controller", () => {
     );
   });
 
-  it("should send a response with a valid user status for an existing user", (done) => {
-    // Use correct ObjectId type for userId
+  it("should send a response with a valid user status for an existing user", async function () {
     const req = {
       userId: new Types.ObjectId("5c0f66b979af55031b34728a"),
     } as Request;
 
-    // Extend the mock response type to include statusCode and userStatus
     const res = {
       statusCode: 500,
       userStatus: null as null | string,
@@ -84,16 +84,13 @@ describe("Auth Controller", () => {
       userStatus: string | null;
     };
 
-    getUserStatus(req, res, () => {}).then(() => {
-      expect(res.statusCode).to.equal(200);
-      expect(res.userStatus).to.equal("I am new!");
-      done();
-    });
+    await getUserStatus(req, res, () => {});
+    expect(res.statusCode).to.equal(200);
+    expect(res.userStatus).to.equal("I am new!");
   });
 
-  after((done) => {
-    User.deleteMany({})
-      .then(() => disconnect())
-      .then(() => done());
+  after(async function () {
+    await User.deleteMany({});
+    await disconnect();
   });
 });
