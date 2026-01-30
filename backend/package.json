@@ -11,18 +11,24 @@
     "watch:images": "chokidar 'src/images/**/*' -c 'rsync -a --delete src/images/ dist/images/'",
     "watch:public": "chokidar 'src/public/**/*' -c 'cp -r src/public dist/public'",
     "dev": "npm run build && concurrently \"npm:watch\" \"npm:watch:images\" \"npm:watch:public\" \"nodemon dist/app.js\"",
-    "start": "cross-env NODE_ENV=production node dist/app.js"
+    "start": "cross-env NODE_ENV=production node dist/app.js",
+    "test": "mocha -r ts-node/register --extension ts --recursive \"src/test/**/*.ts\""
   },
   "devDependencies": {
+    "@types/chai": "^5.2.3",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/mocha": "^10.0.10",
     "@types/multer": "^2.0.0",
     "@types/node": "^25.0.10",
+    "chai": "^6.2.2",
     "chokidar-cli": "^3.0.0",
     "concurrently": "^9.2.1",
     "cross-env": "^10.1.0",
+    "mocha": "^11.7.5",
     "nodemon": "^3.1.11",
     "rimraf": "^6.1.2",
+    "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },
   "dependencies": {
